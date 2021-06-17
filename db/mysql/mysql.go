@@ -7,7 +7,7 @@ import (
 
 var DB *sql.DB
 
-func init()  {
+func init() {
 	var err error
 	DB, err = sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/mywork1")
 	if err != nil {
@@ -25,12 +25,12 @@ func GetOneRow(rows *sql.Rows) (map[string]string, error) {
 	}
 	vals := make([][]byte, len(col))
 	scans := make([]interface{}, len(col))
-	for k := range col{
+	for k := range col {
 		scans[k] = &vals[k]
 	}
 	result := make(map[string]string)
 
-	for rows.Next(){
+	for rows.Next() {
 		err := rows.Scan(scans...)
 		if err != nil {
 			fmt.Println(err)
@@ -43,3 +43,30 @@ func GetOneRow(rows *sql.Rows) (map[string]string, error) {
 	return result, nil
 }
 
+func GetManyRows(rows *sql.Rows) (map[int]map[string]string, error) {
+	col, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+	vals := make([][]byte, len(col))
+	scans := make([]interface{}, len(col))
+	for k := range col {
+		scans[k] = &vals[k]
+	}
+	result := make(map[int]map[string]string)
+
+	i := 0
+	for rows.Next() {
+		if err := rows.Scan(scans...); err != nil {
+			return nil, err
+		}
+		row := make(map[string]string)
+		for k, v := range vals {
+			key := col[k]
+			row[key] = string(v)
+		}
+		result[i] = row
+		i++
+	}
+	return result, nil
+}
