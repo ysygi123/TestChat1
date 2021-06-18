@@ -2,21 +2,12 @@ package main
 
 import (
 	"TestChat1/router/webroute"
+	"TestChat1/router/websocketroute"
 	"TestChat1/servers/web"
-	"github.com/gorilla/websocket"
-	"net/http"
 )
 
-var (
-	upgrader = websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-	}
-)
-
-func main()  {
+func main() {
+	go websocketroute.StartWebSocketRoute()
 	webroute.SetWebRoute()
-	_ = web.GinEniger.Run("192.168.199.112:8088")
+	_ = web.GinEniger.Run(":8088")
 }
-
