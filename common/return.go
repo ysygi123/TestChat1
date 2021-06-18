@@ -1,6 +1,9 @@
 package common
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
 
 type response struct {
 	Code int `json:"code"`
@@ -8,9 +11,9 @@ type response struct {
 	Data interface{} `json:"data"`
 }
 
-func ReturnResponse(c *gin.Context, code int, message string, data interface{})  {
-	c.JSON(code, response{
-		Code:code,
+func ReturnResponse(c *gin.Context, code int, statusCode int, message string, data interface{})  {
+	c.JSON(http.StatusOK, response{
+		Code:statusCode,
 		Message:message,
 		Data:data,
 	})
