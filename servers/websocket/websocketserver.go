@@ -11,6 +11,7 @@ func WebsocketInin() {
 	ClientMangerInstance = new(ClientManger)
 	mysql.NewMysqlDB()
 	redis.NewRedisDB()
+	NewClientManger()
 }
 
 func WebSocketStart() {

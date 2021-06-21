@@ -2,9 +2,11 @@ package websocketcontroller
 
 import (
 	"TestChat1/common"
+	ww "TestChat1/servers/websocket"
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"net/http"
+	"time"
 )
 
 func FirstPage(w http.ResponseWriter, req *http.Request) {
@@ -16,15 +18,23 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 		http.NotFound(w, req)
 		return
 	}
+	err = req.ParseForm()
+	if err != nil {
+		http.NotFound(w, req)
+		return
+	}
 	returnData := common.Response{
 		Code:    200,
 		Message: "你成功了",
 		Data: map[string]string{
-			"IP": conn.RemoteAddr().String(),
+			"cmd": "SendData",
 		},
 	}
+	c := ww.NewClient(conn.RemoteAddr().String(), 1, uint64(time.Now().Unix()))
+	ww.ClientMangerInstance.AddClient(1, c)
+	go c.ReadData()
 	b, err := json.Marshal(returnData)
-	err = conn.WriteMessage(0, b)
+	err = conn.WriteMessage(websocket.TextMessage, b)
 	if err != nil {
 		http.NotFound(w, req)
 		return

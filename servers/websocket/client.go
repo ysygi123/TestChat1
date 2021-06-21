@@ -6,20 +6,19 @@ import (
 )
 
 type client struct {
-	Ip             string
 	Uid            int
-	HeartBreath    uint64
 	BelongServerID int
+	HeartBreath    uint64
+	Ip             string
 	WebSocketConn  websocket.Conn
 }
 
-func NewClient(ip string, uid int, heartBreath uint64, websocketconn websocket.Conn) *client {
+func NewClient(ip string, uid int, heartBreath uint64) *client {
 	return &client{
 		Ip:             ip,
 		Uid:            uid,
 		HeartBreath:    heartBreath,
 		BelongServerID: 1,
-		WebSocketConn:  websocketconn,
 	}
 }
 

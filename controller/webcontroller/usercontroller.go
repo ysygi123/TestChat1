@@ -57,6 +57,9 @@ func Login(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, "设置登录位错误", nil)
 		return
 	}
+	/*uid, _ := strconv.Atoi(userData["uid"])
+	cli := websocket.NewClient(c.ClientIP(), uid, uint64(time.Now().Unix()), session)
+	websocket.ClientMangerInstance.AddClient(uid, cli)*/
 	common.ReturnResponse(c, 200, 200, "登陆成功", map[string]string{
 		"session":  session,
 		"uid":      userData["uid"],
