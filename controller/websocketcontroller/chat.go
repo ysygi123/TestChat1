@@ -30,7 +30,7 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 			"cmd": "SendData",
 		},
 	}
-	c := ww.NewClient(conn.RemoteAddr().String(), 1, uint64(time.Now().Unix()))
+	c := ww.NewClient(conn.RemoteAddr().String(), 1, uint64(time.Now().Unix()), conn)
 	ww.ClientMangerInstance.AddClient(1, c)
 	go c.ReadData()
 	b, err := json.Marshal(returnData)
