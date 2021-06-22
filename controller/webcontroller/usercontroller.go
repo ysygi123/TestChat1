@@ -4,7 +4,9 @@ import (
 	"TestChat1/common"
 	"TestChat1/db/mysql"
 	"TestChat1/db/redis"
+	"TestChat1/servers/websocket"
 	"TestChat1/vaildate/uservalidate"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"time"
 )
@@ -66,4 +68,8 @@ func Login(c *gin.Context) {
 		"username": userData["username"],
 	})
 	return
+}
+
+func LookClient(c *gin.Context) {
+	fmt.Printf("%+v\n\n\n\n", websocket.ClientMangerInstance)
 }

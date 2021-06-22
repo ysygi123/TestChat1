@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -18,11 +19,16 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 		http.NotFound(w, req)
 		return
 	}
-	err = req.ParseForm()
-	if err != nil {
+	query := req.URL.Query()
+
+	//获取uid
+	uidSlice, ok := query["uid"]
+	if ok != true || len(uidSlice) != 1 {
 		http.NotFound(w, req)
 		return
 	}
+	uid, _ := strconv.Atoi(uidSlice[0])
+
 	returnData := common.Response{
 		Code:    200,
 		Message: "你成功了",
@@ -30,7 +36,7 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 			"cmd": "SendData",
 		},
 	}
-	c := ww.NewClient(conn.RemoteAddr().String(), 1, uint64(time.Now().Unix()), conn)
+	c := ww.NewClient(conn.RemoteAddr().String(), uid, uint64(time.Now().Unix()), conn)
 	ww.ClientMangerInstance.AddClient(1, c)
 	go c.ReadData()
 	b, err := json.Marshal(returnData)

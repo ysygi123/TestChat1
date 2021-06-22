@@ -3,6 +3,7 @@ package common
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"math/rand"
@@ -40,4 +41,15 @@ func GetSession(prefix string) string {
 	rand.Seed(t)
 	randNum := rand.Int63()
 	return GetMD5Data(prefix + strconv.Itoa(int(randNum+t)))
+}
+
+func CheckWebSocketParamsIsUnEmpty(keyNames []string, m *map[string]interface{}) error {
+	for _, k := range keyNames {
+		_, ok := (*m)[k]
+		if ok == false {
+			err := errors.New("查无key : " + k)
+			return err
+		}
+	}
+	return nil
 }

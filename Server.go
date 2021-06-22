@@ -15,6 +15,8 @@ func main() {
 	redis.NewRedisDB()
 	websocket.ClientMangerInstanceInit()
 	websocket.WebSocketRouteMangerInit()
+	websocket.WebSocketRouteManger.AllRegisterRoute()
+	go websocket.ClientMangerInstance.LoopToKillChild()
 	go func() {
 		http.HandleFunc("/ws", websocketcontroller.FirstPage)
 		http.ListenAndServe(":8087", nil)

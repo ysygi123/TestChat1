@@ -3,7 +3,7 @@ package websocket
 import (
 	"TestChat1/common"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"github.com/gorilla/websocket"
 )
 
@@ -14,6 +14,7 @@ type Client struct {
 	HeartBreath    uint64
 	Ip             string
 	WebSocketConn  *websocket.Conn
+	IsAuth         bool
 }
 
 func NewClient(ip string, uid int, heartBreath uint64, websocketConn *websocket.Conn) *Client {
@@ -24,6 +25,7 @@ func NewClient(ip string, uid int, heartBreath uint64, websocketConn *websocket.
 		HeartBreath:    heartBreath,
 		BelongServerID: 1,
 		WebSocketConn:  websocketConn,
+		IsAuth:         false,
 	}
 }
 
@@ -32,23 +34,42 @@ func (this *Client) ReadData() {
 	for {
 		mesType, mesg, err := this.WebSocketConn.ReadMessage()
 		if err != nil {
-			fmt.Println("这里是协程测试出现错误的情况", mesType, mesg, err, string(mesg))
+			this.HandleErrorData(err, mesType, "reload")
+			ClientMangerInstance.CloseChan <- this.Uid
 			break
 		}
-		fmt.Println("这里是协程测试", mesType, mesg, err, string(mesg))
 		this.handleData(mesType, mesg)
 	}
 }
 
+//客户端操作数据
 func (this *Client) handleData(mesType int, mesg []byte) {
-	strData := &common.WebSocketRequest{}
-	err := json.Unmarshal(mesg, strData)
-	fmt.Println(strData)
+	s := new(common.WebSocketRequest)
+	err := json.Unmarshal(mesg, s)
 	if err != nil {
-		this.WebSocketConn.WriteMessage(mesType, []byte("出现错误1 : "+err.Error()))
+		this.HandleErrorData(err, mesType, "reload")
+		return
 	}
-	WebSocketRouteManger.GetHandler("a")
+	hFunction, err := WebSocketRouteManger.GetHandler(s.Cmd)
+	if err != nil {
+		this.HandleErrorData(err, mesType, "reload")
+		return
+	}
+	if this.IsAuth == false {
+		err = errors.New("先认证")
+		this.HandleErrorData(err, mesType, "reAuth")
+		return
+	}
+	hFunction(this, &s.Body)
 	//hFunction(this, []byte(strData.Message))
+}
+
+//错误操作
+func (this *Client) HandleErrorData(err error, mesType int, cmd string) {
+	s := common.GetNewWebSocketRequest(cmd)
+	s.Body["err"] = err.Error()
+	this.WebSocketConn.WriteMessage(mesType, common.GetJsonByteData(s))
+	ClientMangerInstance.CloseChan <- this.Uid
 }
 
 func (this *Client) WriteData() {

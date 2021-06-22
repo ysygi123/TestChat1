@@ -5,6 +5,7 @@ import (
 	"TestChat1/servers/web"
 )
 
-func SetWebRoute()  {
+func SetWebRoute() {
 	web.GinEniger.POST("/user/Login", webcontroller.Login)
+	web.GinEniger.POST("/user/LookClient", webcontroller.LookClient)
 }

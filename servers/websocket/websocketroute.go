@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-type WebsocketFunc func(client *Client, message *map[string]string)
+type WebsocketFunc func(client *Client, message *map[string]interface{})
 
 var WebSocketRouteManger *WebSocketRoute
 
@@ -41,4 +41,8 @@ func (this *WebSocketRoute) GetHandler(cmd string) (h WebsocketFunc, err error) 
 		return nil, err
 	}
 	return
+}
+
+func (this *WebSocketRoute) AllRegisterRoute() {
+	this.RegisterRoute("sendMessage", SendMessageToOneUser)
 }

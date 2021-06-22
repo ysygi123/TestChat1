@@ -6,8 +6,9 @@ import (
 )
 
 type ClientManger struct {
-	Clients map[int]*Client
-	RWLock  *sync.RWMutex
+	Clients   map[int]*Client
+	RWLock    *sync.RWMutex
+	CloseChan chan int //关闭通道收到则删除某个客户
 }
 
 var (
@@ -20,8 +21,9 @@ func ClientMangerInstanceInit() {
 
 func NewClientManger() *ClientManger {
 	return &ClientManger{
-		Clients: map[int]*Client{},
-		RWLock:  new(sync.RWMutex),
+		Clients:   map[int]*Client{},
+		RWLock:    new(sync.RWMutex),
+		CloseChan: make(chan int, 1000),
 	}
 }
 
@@ -46,4 +48,11 @@ func (this *ClientManger) DelClient(uid int) {
 	this.RWLock.Lock()
 	delete(this.Clients, uid)
 	this.RWLock.Unlock()
+}
+
+func (this *ClientManger) LoopToKillChild() {
+	for {
+		x := <-this.CloseChan
+		this.DelClient(x)
+	}
 }
