@@ -47,7 +47,7 @@ func (this *Client) handleData(mesType int, mesg []byte) {
 	if err != nil {
 		this.WebSocketConn.WriteMessage(mesType, []byte("出现错误1 : "+err.Error()))
 	}
-
+	WebSocketRouteManger.GetHandler("a")
 	//hFunction(this, []byte(strData.Message))
 }
 
