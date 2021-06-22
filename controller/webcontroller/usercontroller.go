@@ -72,9 +72,14 @@ func Login(c *gin.Context) {
 }
 
 func LookClient(c *gin.Context) {
-	fmt.Printf("%+v\n\n\n\n", websocket.ClientMangerInstance)
+	websocket.ClientMangerInstance.RWLock.RLock()
+	for c, v := range websocket.ClientMangerInstance.Clients {
+		fmt.Println(c, v)
+	}
+	websocket.ClientMangerInstance.RWLock.RUnlock()
 }
 
+//修改client的字段 后续要改成用redis队列丢进去修改将websocket和web拆开
 func AuthClient(c *gin.Context) {
 	authParams := uservalidate.Auth{}
 	err := common.AutoValidate(c, &authParams)
