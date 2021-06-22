@@ -1,8 +1,16 @@
 package websocket
 
 import (
+	"TestChat1/common"
+	"TestChat1/db/mysql"
+	"TestChat1/db/redis"
+	"TestChat1/model/message"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/gorilla/websocket"
 	"sync"
+	"time"
 )
 
 type ClientManger struct {
@@ -66,4 +74,51 @@ func (this *ClientManger) SetAuth(uid int) (err error) {
 	c.IsAuth = true
 	this.RWLock.Unlock()
 	return
+}
+
+//异步消费这些垃圾
+func (this *ClientManger) ConsumeMessage() {
+	wg := new(sync.WaitGroup)
+	for i := 0; i < 6; i++ {
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
+			rec := redis.RedisPool.Get()
+			for {
+				reply, err := rec.Do("BRPOP", "message_queue", 0)
+				if err != nil {
+					fmt.Println("clientManager line 84: ", err)
+					continue
+				}
+				msg := new(message.Message)
+				err = json.Unmarshal(reply.([]interface{})[1].([]byte), msg)
+				if err != nil {
+					fmt.Println("clientManager line 90: ", err)
+					continue
+				}
+				go func() {
+					res, err := mysql.DB.Exec(
+						"INSERT INTO `message`"+
+							"(`message`,`send_uid`,`receive_uid`,`created_time`) "+
+							"VALUES (?,?,?,?)", msg.Message, msg.SendUid, msg.ReceiveUid, uint64(time.Now().Unix()))
+					if err != nil {
+						fmt.Println("clientManager line 96: ", res, err)
+					}
+				}()
+				c, err := this.GetClient(msg.ReceiveUid)
+				if err != nil {
+					fmt.Println("clientManager line 100: ", err)
+					continue
+				}
+				go func() {
+					m := common.GetNewWebSocketRequest("GetMsg")
+					m.Body["message"] = msg.Message
+					err = c.WebSocketConn.WriteMessage(websocket.TextMessage, common.GetJsonByteData(m))
+					if err != nil {
+						fmt.Println("clientManager line 110: ", err)
+					}
+				}()
+			}
+		}(wg)
+	}
+	wg.Done()
 }
