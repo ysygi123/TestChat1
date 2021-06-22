@@ -91,12 +91,12 @@ func AuthClient(c *gin.Context) {
 	uidStr := string(reply.([]byte))
 	uid, _ := strconv.Atoi(uidStr)
 	if uid != authParams.Uid {
-		common.ReturnResponse(c, 200, 400, "去你妈的吧", nil)
+		common.ReturnResponse(c, 200, 400, "去你妈的吧 uid不对等", nil)
 		return
 	}
 	err = websocket.ClientMangerInstance.SetAuth(uid)
 	if err != nil {
-		common.ReturnResponse(c, 200, 400, "去你妈的吧", nil)
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
 	common.ReturnResponse(c, 200, 200, "成功", nil)
