@@ -1,7 +1,9 @@
 package common
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"net/http"
 )
 
@@ -17,4 +19,13 @@ func ReturnResponse(c *gin.Context, code int, statusCode int, message string, da
 		Message: message,
 		Data:    data,
 	})
+}
+
+func WebSocketReturn(conn *websocket.Conn, code int, message string, data interface{}) {
+	j, _ := json.Marshal(Response{
+		code,
+		message,
+		data,
+	})
+	_ = conn.WriteMessage(websocket.TextMessage, j)
 }
