@@ -1,14 +1,12 @@
 package websocketroute
 
 import (
-	"TestChat1/controller/websocketcontroller"
 	"TestChat1/servers/websocket"
 	"errors"
-	"net/http"
 	"sync"
 )
 
-type WebsocketFunc func(client *websocket.Client, mesg []byte)
+type WebsocketFunc func(client *websocket.Client, message *map[string]string)
 
 var WebSocketRouteManger *WebSocketRoute
 
@@ -17,8 +15,12 @@ type WebSocketRoute struct {
 	Route  map[string]WebsocketFunc
 }
 
-func NewWebSocketRoute() {
-	WebSocketRouteManger = &WebSocketRoute{
+func WebSocketRouteMangerInit() {
+	WebSocketRouteManger = NewWebSocketRoute()
+}
+
+func NewWebSocketRoute() *WebSocketRoute {
+	return &WebSocketRoute{
 		RWLock: new(sync.RWMutex),
 		Route:  make(map[string]WebsocketFunc),
 	}
@@ -40,9 +42,4 @@ func (this *WebSocketRoute) GetHandler(cmd string) (h WebsocketFunc, err error) 
 		return nil, err
 	}
 	return
-}
-
-func StartWebSocketRoute() {
-	http.HandleFunc("/ws", websocketcontroller.FirstPage)
-	http.ListenAndServe(":8087", nil)
 }

@@ -10,6 +10,14 @@ type ClientManger struct {
 	RWLock  *sync.RWMutex
 }
 
+var (
+	ClientMangerInstance *ClientManger
+)
+
+func ClientMangerInstanceInit() {
+	ClientMangerInstance = NewClientManger()
+}
+
 func NewClientManger() *ClientManger {
 	return &ClientManger{
 		Clients: map[int]*Client{},

@@ -1,6 +1,8 @@
 package websocket
 
 import (
+	"TestChat1/common"
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
 )
@@ -34,7 +36,19 @@ func (this *Client) ReadData() {
 			break
 		}
 		fmt.Println("这里是协程测试", mesType, mesg, err, string(mesg))
+		this.handleData(mesType, mesg)
 	}
+}
+
+func (this *Client) handleData(mesType int, mesg []byte) {
+	strData := &common.WebSocketRequest{}
+	err := json.Unmarshal(mesg, strData)
+	fmt.Println(strData)
+	if err != nil {
+		this.WebSocketConn.WriteMessage(mesType, []byte("出现错误1 : "+err.Error()))
+	}
+
+	//hFunction(this, []byte(strData.Message))
 }
 
 func (this *Client) WriteData() {
