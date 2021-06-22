@@ -56,3 +56,14 @@ func (this *ClientManger) LoopToKillChild() {
 		this.DelClient(x)
 	}
 }
+
+func (this *ClientManger) SetAuth(uid int) (err error) {
+	c, err := this.GetClient(uid)
+	if err != nil {
+		return
+	}
+	this.RWLock.Lock()
+	c.IsAuth = true
+	this.RWLock.Unlock()
+	return
+}

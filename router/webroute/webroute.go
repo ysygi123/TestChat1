@@ -7,5 +7,6 @@ import (
 
 func SetWebRoute() {
 	web.GinEniger.POST("/user/Login", webcontroller.Login)
-	web.GinEniger.POST("/user/LookClient", webcontroller.LookClient)
+	web.GinEniger.GET("/user/LookClient", webcontroller.LookClient)
+	web.GinEniger.POST("/user/AuthClient", webcontroller.AuthClient)
 }

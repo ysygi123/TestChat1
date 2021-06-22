@@ -8,6 +8,7 @@ import (
 	"TestChat1/vaildate/uservalidate"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"strconv"
 	"time"
 )
 
@@ -72,4 +73,31 @@ func Login(c *gin.Context) {
 
 func LookClient(c *gin.Context) {
 	fmt.Printf("%+v\n\n\n\n", websocket.ClientMangerInstance)
+}
+
+func AuthClient(c *gin.Context) {
+	authParams := uservalidate.Auth{}
+	err := common.AutoValidate(c, &authParams)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+	rec := redis.RedisPool.Get()
+	reply, err := rec.Do("HGET", authParams.Session, "uid")
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+	uidStr := string(reply.([]byte))
+	uid, _ := strconv.Atoi(uidStr)
+	if uid != authParams.Uid {
+		common.ReturnResponse(c, 200, 400, "去你妈的吧", nil)
+		return
+	}
+	err = websocket.ClientMangerInstance.SetAuth(uid)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, "去你妈的吧", nil)
+		return
+	}
+	common.ReturnResponse(c, 200, 200, "成功", nil)
 }

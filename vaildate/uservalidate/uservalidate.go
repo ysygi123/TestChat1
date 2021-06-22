@@ -5,6 +5,11 @@ type LoginValidate struct {
 	Password string `form:"password" binding:"required"`
 }
 
-func (r *LoginValidate)GetError()  {
-	
+type Auth struct {
+	Uid     int    `from:"uid" binding:"required"`
+	Session string `from:"session" binding:"required"`
+}
+
+func (r *LoginValidate) GetError() {
+
 }
