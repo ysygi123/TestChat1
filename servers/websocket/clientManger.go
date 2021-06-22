@@ -6,24 +6,24 @@ import (
 )
 
 type ClientManger struct {
-	Clients map[int]*client
+	Clients map[int]*Client
 	RWLock  *sync.RWMutex
 }
 
 func NewClientManger() *ClientManger {
 	return &ClientManger{
-		Clients: map[int]*client{},
+		Clients: map[int]*Client{},
 		RWLock:  new(sync.RWMutex),
 	}
 }
 
-func (this *ClientManger) AddClient(uid int, client *client) {
+func (this *ClientManger) AddClient(uid int, client *Client) {
 	this.RWLock.Lock()
 	this.Clients[uid] = client
 	this.RWLock.Unlock()
 }
 
-func (this *ClientManger) GetClient(uid int) (c *client, e error) {
+func (this *ClientManger) GetClient(uid int) (c *Client, e error) {
 	this.RWLock.RLock()
 	c, ok := this.Clients[uid]
 	this.RWLock.RUnlock()

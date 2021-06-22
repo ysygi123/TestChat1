@@ -5,7 +5,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type client struct {
+type Client struct {
 	ErrChan        chan struct{}
 	Uid            int
 	BelongServerID int
@@ -14,8 +14,8 @@ type client struct {
 	WebSocketConn  *websocket.Conn
 }
 
-func NewClient(ip string, uid int, heartBreath uint64, websocketConn *websocket.Conn) *client {
-	return &client{
+func NewClient(ip string, uid int, heartBreath uint64, websocketConn *websocket.Conn) *Client {
+	return &Client{
 		ErrChan:        make(chan struct{}, 1),
 		Ip:             ip,
 		Uid:            uid,
@@ -25,7 +25,7 @@ func NewClient(ip string, uid int, heartBreath uint64, websocketConn *websocket.
 	}
 }
 
-func (this *client) ReadData() {
+func (this *Client) ReadData() {
 	defer func() { this.ErrChan <- struct{}{} }()
 	for {
 		mesType, mesg, err := this.WebSocketConn.ReadMessage()
@@ -37,6 +37,6 @@ func (this *client) ReadData() {
 	}
 }
 
-func (this *client) WriteData() {
+func (this *Client) WriteData() {
 
 }
