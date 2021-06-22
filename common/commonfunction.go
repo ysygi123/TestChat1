@@ -36,6 +36,7 @@ func GetMD5Data(data string) string {
 	return string(md5str)
 }
 
+//生成随机prefix的session
 func GetSession(prefix string) string {
 	t := time.Now().Unix()
 	rand.Seed(t)
@@ -43,6 +44,7 @@ func GetSession(prefix string) string {
 	return GetMD5Data(prefix + strconv.Itoa(int(randNum+t)))
 }
 
+//简单判断websocket收到的参数是不是空的
 func CheckWebSocketParamsIsUnEmpty(keyNames []string, m *map[string]interface{}) error {
 	for _, k := range keyNames {
 		_, ok := (*m)[k]
