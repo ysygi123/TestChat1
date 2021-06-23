@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+//发送消息
 func SendMessage(c *gin.Context) {
 	var messageParams messagevalidate.Message
 	err := common.AutoValidate(c, &messageParams)
@@ -17,13 +18,16 @@ func SendMessage(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
-	msg := &message.Message{
-		SendUid:        messageParams.SendUid,
-		ReceiveUid:     messageParams.ReceiveUid,
-		MessageContent: messageParams.MessageContent,
-		CreatedTime:    uint64(time.Now().Unix()),
+	pm := &message.PipelineMessage{
+		MessageType: 1,
+		MessageBody: message.Message{
+			SendUid:        messageParams.SendUid,
+			ReceiveUid:     messageParams.ReceiveUid,
+			MessageContent: messageParams.MessageContent,
+			CreatedTime:    uint64(time.Now().Unix()),
+		},
 	}
-	jsonMessage, err := json.Marshal(msg)
+	jsonMessage, err := json.Marshal(pm)
 	if err != nil {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
