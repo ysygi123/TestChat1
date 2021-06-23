@@ -1,5 +1,11 @@
 package message
 
+//这个是用于丢到队列里面去 处理多种消息用的
+type PipelineMessage struct {
+	MessageType uint8       `json:"message_type"`
+	MessageBody interface{} `json:"message_body"`
+}
+
 type Message struct {
 	Id             int    `db:"id" json:"id"`
 	SendUid        int    `db:"send_uid" json:"send_uid"`
