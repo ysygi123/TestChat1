@@ -4,6 +4,7 @@ import (
 	"TestChat1/common"
 	"TestChat1/db/mysql"
 	"TestChat1/db/redis"
+	"TestChat1/model/user"
 	"TestChat1/servers/websocket"
 	"TestChat1/vaildate/uservalidate"
 	"fmt"
@@ -109,12 +110,40 @@ func AuthClient(c *gin.Context) {
 	common.ReturnResponse(c, 200, 200, "成功", nil)
 }
 
+//加好友请求
+func AddFriendRequest(c *gin.Context) {
+
+}
+
+//同意加好友
+func AddFriendCommit(c *gin.Context) {
+
+}
+
 //获取好友列表
 func GetFriendsList(c *gin.Context) {
-	authParams := uservalidate.Auth{}
-	err := common.AutoValidate(c, &authParams)
+	uidStr := c.Param("uid")
+	uid, _ := strconv.Atoi(uidStr)
+	if uid == 0 {
+		common.ReturnResponse(c, 200, 400, "id错误", nil)
+		return
+	}
+	rows, err := mysql.DB.Query("SELECT `u2`.`username`,`u2`.`rname`,`u2`.`uid`,`u2`.`mobile` "+
+		"FROM `user_friends` as `u1` INNER JOIN `user` as `u2` ON `u1`.`uid`=`u2`.`uid`"+
+		"WHERE `u1`.`uid`=? AND is_del=1", uid)
 	if err != nil {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
+	userList := make([]user.User, 0)
+	var tmpUser user.User
+	for rows.Next() {
+		err = rows.Scan(&tmpUser.Username, &tmpUser.Rname, &tmpUser.Uid, &tmpUser.Mobile)
+		if err != nil {
+			common.ReturnResponse(c, 200, 400, err.Error(), nil)
+			return
+		}
+		userList = append(userList, tmpUser)
+	}
+	common.ReturnResponse(c, 200, 200, "成功", map[string]interface{}{"list": userList})
 }
