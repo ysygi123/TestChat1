@@ -18,10 +18,10 @@ func SendMessage(c *gin.Context) {
 		return
 	}
 	msg := &message.Message{
-		SendUid:     messageParams.SendUid,
-		ReceiveUid:  messageParams.ReceiveUid,
-		Message:     messageParams.Message,
-		CreatedTime: uint64(time.Now().Unix()),
+		SendUid:        messageParams.SendUid,
+		ReceiveUid:     messageParams.ReceiveUid,
+		MessageContent: messageParams.MessageContent,
+		CreatedTime:    uint64(time.Now().Unix()),
 	}
 	jsonMessage, err := json.Marshal(msg)
 	if err != nil {
