@@ -13,6 +13,7 @@
 
 
 -- 导出 testchat1 的数据库结构
+DROP DATABASE IF EXISTS `testchat1`;
 CREATE DATABASE IF NOT EXISTS `testchat1` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `testchat1`;
 
