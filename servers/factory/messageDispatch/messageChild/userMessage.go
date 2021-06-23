@@ -1,6 +1,7 @@
 package messageChild
 
 import (
+	"TestChat1/common"
 	"TestChat1/db/mysql"
 	"TestChat1/model/message"
 	"TestChat1/servers/websocket"
@@ -20,7 +21,21 @@ func (this *UserMessage) AddMessage(messageData *message.PipelineMessage) error 
 		SendUid:        int(m["send_uid"].(float64)),
 		MessageContent: m["message_content"].(string),
 	}
+	//即时发送消息
+	go func() {
+		c, err := websocket.ClientMangerInstance.GetClient(msg.ReceiveUid)
+		if err != nil {
+			fmt.Println("错误")
+			return
+		}
+		wmsg := common.GetNewWebSocketRequest("GetMessage")
+		wmsg.Body = map[string]interface{}{
+			"message_content": msg.MessageContent,
+		}
+		_ = c.WebSocketConn.WriteMessage(1, common.GetJsonByteData(wmsg))
+	}()
 
+	//处理消息入库
 	res, err := mysql.DB.Exec("BEGIN")
 	msg.CreatedTime = uint64(time.Now().Unix())
 	res, err = mysql.DB.Exec(
@@ -32,9 +47,29 @@ func (this *UserMessage) AddMessage(messageData *message.PipelineMessage) error 
 		mysql.DB.Exec("ROLLBACK")
 	}
 
-	resq, err := mysql.DB.Query("SELECT `id`,`message_num` FROM `message_list` WHERE `from_id`=? AND `message_type`=1 AND `is_del`=1 limit 1", msg.SendUid)
+	resq, err := mysql.DB.Query("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE (`from_id`=? OR `uid`=?) AND `message_type`=1 AND `is_del`=1 limit 1", msg.SendUid, msg.SendUid)
+
 	if err != nil {
 		fmt.Println("clientManager line 131", resq, err)
+	}
+
+	tmpMsg := message.MessageList{}
+
+	iSendFlag := false
+	iReceiveFlag := false
+	fmt.Println(iSendFlag, iReceiveFlag)
+	for resq.Next() {
+		err = resq.Scan(&tmpMsg.Id, &tmpMsg.MessageNum, &tmpMsg.Uid, &tmpMsg.FromId)
+		if err != nil {
+			fmt.Println("clientManager line 61: ", err)
+			return nil
+		}
+		//那么这条是我发的
+		if tmpMsg.FromId == msg.SendUid {
+			//将标变为正确
+			iSendFlag = true
+
+		}
 	}
 	resqMap, err := mysql.GetOneRow(resq)
 	//设置可插入list表的消息

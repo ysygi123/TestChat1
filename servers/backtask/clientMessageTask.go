@@ -32,7 +32,6 @@ func TaskConsumeMessage() {
 				mfc, err := messageDispatch.CreateMessage(map[string]interface{}{
 					"messageType": "1",
 				})
-				fmt.Println("这个是mfc", mfc, messageDispatch.MessageFactory, err)
 				if err != nil {
 					fmt.Println("clientManager line 40", err)
 					continue
