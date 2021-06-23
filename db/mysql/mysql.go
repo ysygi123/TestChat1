@@ -21,7 +21,7 @@ var DB *sql.DB
 
 func NewMysqlDB() {
 	var err error
-	DB, err = sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/mywork1")
+	DB, err = sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/testchat1")
 	if err != nil {
 		fmt.Println(err)
 		panic("safd")
