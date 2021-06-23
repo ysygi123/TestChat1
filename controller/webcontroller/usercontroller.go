@@ -60,9 +60,7 @@ func Login(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, "设置登录位错误", nil)
 		return
 	}
-	/*uid, _ := strconv.Atoi(userData["uid"])
-	cli := websocket.NewClient(c.ClientIP(), uid, uint64(time.Now().Unix()), session)
-	websocket.ClientMangerInstance.AddClient(uid, cli)*/
+	//返回成功
 	common.ReturnResponse(c, 200, 200, "登陆成功", map[string]string{
 		"session":  session,
 		"uid":      userData["uid"],
@@ -93,6 +91,10 @@ func AuthClient(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
+	if reply == nil {
+		common.ReturnResponse(c, 200, 400, "未知错误", nil)
+		return
+	}
 	uidStr := string(reply.([]byte))
 	uid, _ := strconv.Atoi(uidStr)
 	if uid != authParams.Uid {
@@ -105,4 +107,14 @@ func AuthClient(c *gin.Context) {
 		return
 	}
 	common.ReturnResponse(c, 200, 200, "成功", nil)
+}
+
+//获取好友列表
+func GetFriendsList(c *gin.Context) {
+	authParams := uservalidate.Auth{}
+	err := common.AutoValidate(c, &authParams)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
 }
