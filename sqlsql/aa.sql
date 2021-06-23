@@ -13,7 +13,6 @@
 
 
 -- 导出 testchat1 的数据库结构
-DROP DATABASE IF EXISTS `testchat1`;
 CREATE DATABASE IF NOT EXISTS `testchat1` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `testchat1`;
 
@@ -126,6 +125,23 @@ INSERT INTO `user` (`uid`, `username`, `rname`, `mobile`, `passwd`, `created_tim
 	(2, '11', '11', '11', '6512bd43d9caa6e02c990b0a82652dca', 0, 0);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 
+-- 导出  表 testchat1.user_add_friend_request 结构
+DROP TABLE IF EXISTS `user_add_friend_request`;
+CREATE TABLE IF NOT EXISTS `user_add_friend_request` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`request_uid` INT(11) NOT NULL DEFAULT '0',
+	`receive_uid` INT(11) NOT NULL DEFAULT '0',
+	`created_time` INT(11) NOT NULL DEFAULT '0',
+	PRIMARY KEY (`id`) USING BTREE,
+	INDEX `request_uid` (`request_uid`) USING BTREE,
+	INDEX `receive_uid` (`receive_uid`) USING BTREE
+);
+
+-- 正在导出表  testchat1.user_add_friend_request 的数据：~0 rows (大约)
+DELETE FROM `user_add_friend_request`;
+/*!40000 ALTER TABLE `user_add_friend_request` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_add_friend_request` ENABLE KEYS */;
+
 -- 导出  表 testchat1.user_friends 结构
 DROP TABLE IF EXISTS `user_friends`;
 CREATE TABLE IF NOT EXISTS `user_friends` (
@@ -134,13 +150,17 @@ CREATE TABLE IF NOT EXISTS `user_friends` (
 	`friend_uid` INT(10) NOT NULL DEFAULT '0',
 	`created_time` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`update_time` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	`is_del` TINYINT(3) NOT NULL DEFAULT '0',
-	PRIMARY KEY (`id`) USING BTREE
+	`is_del` TINYINT(3) NOT NULL DEFAULT '1' COMMENT '1不删2删',
+	PRIMARY KEY (`id`) USING BTREE,
+	INDEX `uid` (`uid`) USING BTREE
 );
 
 -- 正在导出表  testchat1.user_friends 的数据：~0 rows (大约)
 DELETE FROM `user_friends`;
 /*!40000 ALTER TABLE `user_friends` DISABLE KEYS */;
+INSERT INTO `user_friends` (`id`, `uid`, `friend_uid`, `created_time`, `update_time`, `is_del`) VALUES
+	(1, 1, 2, 0, 0, 1),
+	(2, 2, 1, 0, 0, 1);
 /*!40000 ALTER TABLE `user_friends` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
