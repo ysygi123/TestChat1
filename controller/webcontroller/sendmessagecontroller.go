@@ -35,4 +35,5 @@ func SendMessage(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
+	common.ReturnResponse(c, 200, 400, "发送成功", nil)
 }
