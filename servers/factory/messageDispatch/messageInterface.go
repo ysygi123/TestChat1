@@ -1,7 +1,10 @@
 package messageDispatch
 
-import "TestChat1/model/message"
+import (
+	"TestChat1/model/message"
+)
 
 type MessageInterface interface {
-	AddMessage(message *message.PipelineMessage) error
+	AddMessage(message *message.Message) error
+	PushMessage(message *message.Message) error
 }

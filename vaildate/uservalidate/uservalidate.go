@@ -10,6 +10,12 @@ type Auth struct {
 	Session string `from:"session" binding:"required"`
 }
 
+type AddFriendRequest struct {
+	SendUid    int    `json:"send_uid"`
+	ReceiveUid int    `json:"receive_uid"`
+	Rname      string `json:"rname"`
+}
+
 func (r *LoginValidate) GetError() {
 
 }

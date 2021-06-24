@@ -11,7 +11,9 @@ type MessageOpsFactory func(conf map[string]interface{}) (MessageInterface, erro
 var MessageFactory = make(map[uint8]MessageOpsFactory)
 
 func init() {
+	Register(uint8(0), NewAddBaseMessage)
 	Register(uint8(1), NewUserMessage)
+	Register(uint8(2), NewAddFriendMessage)
 }
 
 //注册
@@ -47,4 +49,14 @@ func CreateMessage(conf map[string]interface{}) (MessageInterface, error) {
 func NewUserMessage(conf map[string]interface{}) (MessageInterface, error) {
 	fmt.Println("usermessagecreate")
 	return &messageChild.UserMessage{}, nil
+}
+
+func NewAddFriendMessage(conf map[string]interface{}) (MessageInterface, error) {
+	fmt.Println("AddFriendmessage")
+	return &messageChild.AddFriendMessage{}, nil
+}
+
+func NewAddBaseMessage(conf map[string]interface{}) (MessageInterface, error) {
+	fmt.Println("AddFriendmessage")
+	return &messageChild.BaseMessage{}, nil
 }

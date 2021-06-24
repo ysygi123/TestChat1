@@ -22,13 +22,12 @@ func TaskConsumeMessage() {
 					fmt.Println("clientManager line 84: ", err)
 					continue
 				}
-				msg := new(message.PipelineMessage)
+				msg := new(message.Message)
 				err = json.Unmarshal(reply.([]interface{})[1].([]byte), msg)
 				if err != nil {
 					fmt.Println("clientManager line 90: ", err)
 					continue
 				}
-				fmt.Println()
 
 				mfc, err := messageDispatch.CreateMessage(map[string]interface{}{
 					"messageType": msg.MessageType,

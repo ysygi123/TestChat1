@@ -4,9 +4,11 @@ import (
 	"TestChat1/common"
 	"TestChat1/db/mysql"
 	"TestChat1/db/redis"
+	"TestChat1/model/message"
 	"TestChat1/model/user"
 	"TestChat1/servers/websocket"
 	"TestChat1/vaildate/uservalidate"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -112,7 +114,27 @@ func AuthClient(c *gin.Context) {
 
 //加好友请求
 func AddFriendRequest(c *gin.Context) {
-
+	userAddRequest := &uservalidate.AddFriendRequest{}
+	err := common.AutoValidate(c, userAddRequest)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+	rec := redis.RedisPool.Get()
+	msg := &message.Message{
+		MessageType:    uint8(3),
+		SendUid:        userAddRequest.SendUid,
+		ReceiveUid:     userAddRequest.ReceiveUid,
+		CreatedTime:    uint64(time.Now().Unix()),
+		MessageContent: userAddRequest.Rname + "向您发出好友请求",
+	}
+	jsonStr, err := json.Marshal(msg)
+	_, err = rec.Do("LPUSH", "message_queue", jsonStr)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+	common.ReturnResponse(c, 200, 200, "success", nil)
 }
 
 //同意加好友

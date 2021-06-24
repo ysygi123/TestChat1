@@ -2,39 +2,37 @@ package webcontroller
 
 import (
 	"TestChat1/common"
-	"TestChat1/db/redis"
 	"TestChat1/model/message"
-	"TestChat1/vaildate/messagevalidate"
-	"encoding/json"
+	"TestChat1/servers/factory/messageDispatch"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"reflect"
 	"time"
 )
 
 //发送消息
 func SendMessage(c *gin.Context) {
-	var messageParams messagevalidate.Message
-	err := common.AutoValidate(c, &messageParams)
+	msg := &message.Message{}
+	err := c.ShouldBindJSON(msg)
 	if err != nil {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
-	pm := &message.PipelineMessage{
-		MessageType: 1,
-		MessageBody: message.Message{
-			SendUid:        messageParams.SendUid,
-			ReceiveUid:     messageParams.ReceiveUid,
-			MessageContent: messageParams.MessageContent,
-			CreatedTime:    uint64(time.Now().Unix()),
-		},
-	}
-	jsonMessage, err := json.Marshal(pm)
+	msg.CreatedTime = uint64(time.Now().Unix())
+
+	fmt.Printf("奇奇怪怪 %+v\n\n", msg)
+
+	mfc, err := messageDispatch.CreateMessage(map[string]interface{}{
+		"messageType": msg.MessageType,
+	})
+
+	fmt.Println(reflect.TypeOf(mfc))
+
 	if err != nil {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
-	//发送消息到队列
-	rec := redis.RedisPool.Get()
-	_, err = rec.Do("LPUSH", "message_queue", jsonMessage)
+	err = mfc.PushMessage(msg)
 	if err != nil {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
