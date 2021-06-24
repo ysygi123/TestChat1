@@ -58,13 +58,13 @@ func (this *BaseMessage) CommonHandle(ml *message.MessageList, resq *sql.Row, ms
 
 //查询 我发出去的消息 也就是接收人的消息面板是不是要有红点
 func (this *BaseMessage) ISendMessage(ml *message.MessageList, msg *message.Message, msgcontent string) error {
-	resq := mysql.DB.QueryRow("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE `from_id`=? AND `message_type`=1 limit 1", msg.SendUid)
+	resq := mysql.DB.QueryRow("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE `from_id`=? AND `message_type`=? limit 1", msg.SendUid, msg.MessageType)
 	return this.CommonHandle(ml, resq, msg, msgcontent, true)
 }
 
 //查询 我收的消息里面是不是要有红点
 func (this *BaseMessage) IReceiverSendMessage(ml *message.MessageList, msg *message.Message, msgcontent string) error {
-	resq := mysql.DB.QueryRow("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE `uid`=? AND `message_type`=1 limit 1", msg.SendUid)
+	resq := mysql.DB.QueryRow("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE `uid`=? AND `message_type`=? limit 1", msg.SendUid, msg.MessageType)
 	msg.SendUid, msg.ReceiveUid = msg.ReceiveUid, msg.SendUid
 	return this.CommonHandle(ml, resq, msg, msgcontent, false)
 }

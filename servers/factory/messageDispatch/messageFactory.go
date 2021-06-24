@@ -13,7 +13,7 @@ var MessageFactory = make(map[uint8]MessageOpsFactory)
 func init() {
 	Register(uint8(0), NewAddBaseMessage)
 	Register(uint8(1), NewUserMessage)
-	Register(uint8(2), NewAddFriendMessage)
+	Register(uint8(3), NewAddFriendMessage)
 }
 
 //注册
@@ -34,12 +34,12 @@ func Register(messageType uint8, factory MessageOpsFactory) {
 func CreateMessage(conf map[string]interface{}) (MessageInterface, error) {
 	opsType, ok := conf["messageType"]
 	if !ok {
-		err := errors.New("没有这个类")
+		err := errors.New("没有这个类1")
 		return nil, err
 	}
 	opsFactory, ok := MessageFactory[opsType.(uint8)]
 	if !ok {
-		err := errors.New("没有这个类")
+		err := errors.New("没有这个类2")
 		return nil, err
 	}
 	return opsFactory(conf)
