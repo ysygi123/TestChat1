@@ -8,14 +8,14 @@ import (
 
 type MessageOpsFactory func(conf map[string]interface{}) (MessageInterface, error)
 
-var MessageFactory = make(map[string]MessageOpsFactory)
+var MessageFactory = make(map[uint8]MessageOpsFactory)
 
 func init() {
-	Register("1", NewUserMessage)
+	Register(uint8(1), NewUserMessage)
 }
 
 //注册
-func Register(messageType string, factory MessageOpsFactory) {
+func Register(messageType uint8, factory MessageOpsFactory) {
 	if factory == nil {
 		fmt.Println("没有传啊")
 		return
@@ -35,7 +35,7 @@ func CreateMessage(conf map[string]interface{}) (MessageInterface, error) {
 		err := errors.New("没有这个类")
 		return nil, err
 	}
-	opsFactory, ok := MessageFactory[opsType.(string)]
+	opsFactory, ok := MessageFactory[opsType.(uint8)]
 	if !ok {
 		err := errors.New("没有这个类")
 		return nil, err

@@ -5,17 +5,73 @@ import (
 	"TestChat1/db/mysql"
 	"TestChat1/model/message"
 	"TestChat1/servers/websocket"
+	"database/sql"
 	"fmt"
-	"strconv"
 	"time"
 )
 
 type UserMessage struct {
 }
 
+func (this *UserMessage) CommonHandle(ml *message.MessageList, resq *sql.Row, msg *message.Message, msgcontent string, isSelf bool) error {
+	resq.Scan(&ml.Id, &ml.MessageNum, &ml.Uid, &ml.FromId)
+	if ml.Id == 0 {
+		if err := this.InsertData(msg, msgcontent); err != nil {
+			return err
+		}
+	} else {
+		if err := this.UpdateData(msg, msgcontent, ml.Id, isSelf); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+//查询 我发出去的消息 也就是接收人的消息面板是不是要有红点
+func (this *UserMessage) ISendMessage(ml *message.MessageList, msg *message.Message, msgcontent string) error {
+	resq := mysql.DB.QueryRow("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE `from_id`=? AND `message_type`=1 limit 1", msg.SendUid)
+	return this.CommonHandle(ml, resq, msg, msgcontent, true)
+}
+
+//查询 我收的消息里面是不是要有红点
+func (this *UserMessage) IReceiverSendMessage(ml *message.MessageList, msg *message.Message, msgcontent string) error {
+	resq := mysql.DB.QueryRow("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE `uid`=? AND `message_type`=1 limit 1", msg.SendUid)
+	msg.SendUid, msg.ReceiveUid = msg.ReceiveUid, msg.SendUid
+	return this.CommonHandle(ml, resq, msg, msgcontent, false)
+}
+
+//新增
+func (this *UserMessage) InsertData(msg *message.Message, msgcontent string) error {
+	res, err := mysql.DB.Exec("INSERT INTO `message_list`"+
+		"(`uid`,`from_id`,`message_content`,`message_type`,`created_time`,`update_time`,`message_num`)"+
+		"VALUES (?,?,?,?,?,?,?)", msg.ReceiveUid, msg.SendUid, msgcontent, 1, msg.CreatedTime, msg.CreatedTime, 1)
+	if err != nil {
+		fmt.Println("clientManager line 41", res, err)
+		return err
+	}
+	return nil
+}
+
+//修改
+func (this *UserMessage) UpdateData(msg *message.Message, msgcontent string, id int, isSelf bool) error {
+	sqlsql := "UPDATE `message_list` SET " +
+		"`message_content`=?,update_time=?,"
+	if isSelf {
+		sqlsql += "`message_num`=`message_num`+1,"
+	}
+	sqlsql += "`is_del`=1 WHERE id=?"
+	res, err := mysql.DB.Exec(sqlsql, msgcontent, msg.CreatedTime, id)
+	if err != nil {
+		fmt.Println("clientManager line 54", res, err)
+		return err
+	}
+	return nil
+}
+
+//主要逻辑
 func (this *UserMessage) AddMessage(messageData *message.PipelineMessage) error {
 	m := messageData.MessageBody.(map[string]interface{})
-	msg := message.Message{
+	msg := &message.Message{
 		CreatedTime:    uint64(m["created_time"].(float64)),
 		ReceiveUid:     int(m["receive_uid"].(float64)),
 		SendUid:        int(m["send_uid"].(float64)),
@@ -47,31 +103,6 @@ func (this *UserMessage) AddMessage(messageData *message.PipelineMessage) error 
 		mysql.DB.Exec("ROLLBACK")
 	}
 
-	resq, err := mysql.DB.Query("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE (`from_id`=? OR `uid`=?) AND `message_type`=1 AND `is_del`=1 limit 1", msg.SendUid, msg.SendUid)
-
-	if err != nil {
-		fmt.Println("clientManager line 131", resq, err)
-	}
-
-	tmpMsg := message.MessageList{}
-
-	iSendFlag := false
-	iReceiveFlag := false
-	fmt.Println(iSendFlag, iReceiveFlag)
-	for resq.Next() {
-		err = resq.Scan(&tmpMsg.Id, &tmpMsg.MessageNum, &tmpMsg.Uid, &tmpMsg.FromId)
-		if err != nil {
-			fmt.Println("clientManager line 61: ", err)
-			return nil
-		}
-		//那么这条是我发的
-		if tmpMsg.FromId == msg.SendUid {
-			//将标变为正确
-			iSendFlag = true
-
-		}
-	}
-	resqMap, err := mysql.GetOneRow(resq)
 	//设置可插入list表的消息
 	msgTitle := []rune(msg.MessageContent)
 	lmsgTitle := len(msgTitle)
@@ -81,27 +112,17 @@ func (this *UserMessage) AddMessage(messageData *message.PipelineMessage) error 
 	} else {
 		msgcontent = msg.MessageContent
 	}
-
-	if idStr, ok := resqMap["id"]; ok == false { //新增
-		res, err := mysql.DB.Exec("INSERT INTO `message_list`"+
-			"(`uid`,`from_id`,`message_content`,`message_type`,`created_time`,`update_time`,`message_num`)"+
-			"VALUES (?,?,?,?,?,?,?)", msg.ReceiveUid, msg.SendUid, msgcontent, 1, msg.CreatedTime, msg.CreatedTime, 1)
-		if err != nil {
-			fmt.Println("clientManager line 150", res, err)
-			mysql.DB.Exec("ROLLBACK")
-		}
-	} else { //修改
-		id, _ := strconv.Atoi(idStr)
-		res, err := mysql.DB.Exec("UPDATE `message_list` SET "+
-			"`message_content`=?,update_time=?,`message_num`=`message_num`+1 "+
-			"WHERE id=?",
-			msgcontent, msg.CreatedTime, id)
-		if err != nil {
-			fmt.Println("clientManager line 159", res, err)
-			mysql.DB.Exec("ROLLBACK")
-		}
+	ml := new(message.MessageList)
+	if err = this.ISendMessage(ml, msg, msgcontent); err != nil {
+		fmt.Println("ClientManager 116 : ", err)
+		mysql.DB.Exec("ROLLBACK")
+		return err
+	}
+	if err = this.IReceiverSendMessage(ml, msg, msgcontent); err != nil {
+		fmt.Println("ClientManager 120 : ", err)
+		mysql.DB.Exec("ROLLBACK")
+		return err
 	}
 	res, err = mysql.DB.Exec("COMMIT")
-
 	return nil
 }
