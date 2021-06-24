@@ -78,7 +78,7 @@ func (this *BaseMessage) InsertData(msg *message.Message, msgcontent string, isS
 	}
 	res, err := mysql.DB.Exec("INSERT INTO `message_list`"+
 		"(`uid`,`from_id`,`message_content`,`message_type`,`created_time`,`update_time`,`message_num`)"+
-		"VALUES (?,?,?,?,?,?,?)", msg.ReceiveUid, msg.SendUid, msgcontent, 1, msg.CreatedTime, msg.CreatedTime, message_num)
+		"VALUES (?,?,?,?,?,?,?)", msg.ReceiveUid, msg.SendUid, msgcontent, msg.MessageType, msg.CreatedTime, msg.CreatedTime, message_num)
 	if err != nil {
 		fmt.Println("clientManager line 41", res, err)
 		return err
