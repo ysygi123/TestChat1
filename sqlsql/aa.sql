@@ -13,7 +13,6 @@
 
 
 -- 导出 testchat1 的数据库结构
-DROP DATABASE IF EXISTS `testchat1`;
 CREATE DATABASE IF NOT EXISTS `testchat1` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `testchat1`;
 
@@ -70,16 +69,20 @@ DELETE FROM `group_users`;
 DROP TABLE IF EXISTS `message`;
 CREATE TABLE IF NOT EXISTS `message` (
 	`id` INT(10) NOT NULL AUTO_INCREMENT,
-	`message_content` VARCHAR(1000) NOT NULL DEFAULT '' COLLATE 'utf8mb4_general_ci',
+	`message_content` TEXT NOT NULL COLLATE 'utf8mb4_general_ci',
 	`send_uid` INT(10) NOT NULL DEFAULT '0' COMMENT '发送者uid',
 	`receive_uid` INT(10) NOT NULL DEFAULT '0' COMMENT '接受者uid',
 	`created_time` INT(10) NOT NULL DEFAULT '0' COMMENT '创建时间戳',
+	`message_type` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '1用户消息message 2群消息 3加好友请求 4群邀请',
+	`group_id` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT '群id',
 	PRIMARY KEY (`id`) USING BTREE
 );
 
--- 正在导出表  testchat1.message 的数据：~3 rows (大约)
+-- 正在导出表  testchat1.message 的数据：~0 rows (大约)
 DELETE FROM `message`;
 /*!40000 ALTER TABLE `message` DISABLE KEYS */;
+INSERT INTO `message` (`id`, `message_content`, `send_uid`, `receive_uid`, `created_time`, `message_type`, `group_id`) VALUES
+	(2, '你有一个好友请求', 1, 2, 1624589591, 3, 0);
 /*!40000 ALTER TABLE `message` ENABLE KEYS */;
 
 -- 导出  表 testchat1.message_list 结构
@@ -94,6 +97,7 @@ CREATE TABLE IF NOT EXISTS `message_list` (
 	`update_time` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`message_num` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT '消息数量',
 	`is_del` TINYINT(3) NOT NULL DEFAULT '1' COMMENT '1不删 2删',
+	`message_id` INT(11) NOT NULL DEFAULT '0',
 	PRIMARY KEY (`id`) USING BTREE,
 	UNIQUE INDEX `from_id_message_type_is_del` (`from_id`, `message_type`, `is_del`) USING BTREE,
 	INDEX `uid` (`uid`) USING BTREE
@@ -102,6 +106,9 @@ CREATE TABLE IF NOT EXISTS `message_list` (
 -- 正在导出表  testchat1.message_list 的数据：~0 rows (大约)
 DELETE FROM `message_list`;
 /*!40000 ALTER TABLE `message_list` DISABLE KEYS */;
+INSERT INTO `message_list` (`id`, `uid`, `from_id`, `message_content`, `message_type`, `created_time`, `update_time`, `message_num`, `is_del`, `message_id`) VALUES
+	(3, 2, 1, '你有一个好友请求', 3, 1624589591, 1624589591, 1, 1, 2),
+	(4, 1, 2, '你有一个好友请求', 3, 1624589591, 1624589591, 0, 1, 2);
 /*!40000 ALTER TABLE `message_list` ENABLE KEYS */;
 
 -- 导出  表 testchat1.user 结构
@@ -153,15 +160,15 @@ CREATE TABLE IF NOT EXISTS `user_friends` (
 	`update_time` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`is_del` TINYINT(3) NOT NULL DEFAULT '1' COMMENT '1不删2删',
 	PRIMARY KEY (`id`) USING BTREE,
-	INDEX `uid` (`uid`) USING BTREE
+	UNIQUE INDEX `uid_friend_uid` (`uid`, `friend_uid`) USING BTREE
 );
 
--- 正在导出表  testchat1.user_friends 的数据：~0 rows (大约)
+-- 正在导出表  testchat1.user_friends 的数据：~2 rows (大约)
 DELETE FROM `user_friends`;
 /*!40000 ALTER TABLE `user_friends` DISABLE KEYS */;
 INSERT INTO `user_friends` (`id`, `uid`, `friend_uid`, `created_time`, `update_time`, `is_del`) VALUES
-	(1, 1, 2, 0, 0, 1),
-	(2, 2, 1, 0, 0, 1);
+	(1, 1, 2, 1624592935, 1624592935, 1),
+	(2, 2, 1, 1624592935, 1624592935, 1);
 /*!40000 ALTER TABLE `user_friends` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
