@@ -47,16 +47,16 @@ func CreateMessage(conf map[string]interface{}) (MessageInterface, error) {
 
 //new一个的个人消息
 func NewUserMessage(conf map[string]interface{}) (MessageInterface, error) {
-	fmt.Println("usermessagecreate")
+	fmt.Println("create usermessagecreate")
 	return &messageChild.UserMessage{}, nil
 }
 
 func NewAddFriendMessage(conf map[string]interface{}) (MessageInterface, error) {
-	fmt.Println("AddFriendmessage")
+	fmt.Println("CREATE AddFriendmessage")
 	return &messageChild.AddFriendMessage{}, nil
 }
 
 func NewAddBaseMessage(conf map[string]interface{}) (MessageInterface, error) {
-	fmt.Println("AddFriendmessage")
+	fmt.Println("create baseMessage")
 	return &messageChild.BaseMessage{}, nil
 }
