@@ -41,7 +41,7 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 	//这个uid没有登录就要返回错误
 	if hasUid == false {
 		returnData.Code = 400
-		returnData.Message = "这个uid没有登录啊 这个是redis查的 去你吗的"
+		returnData.Message = "这个uid没有登录啊 这个是redis查的"
 		returnData.Data = map[string]string{
 			"cmd": "reLogin",
 		}

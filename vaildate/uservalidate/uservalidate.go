@@ -16,6 +16,11 @@ type AddFriendRequest struct {
 	Rname      string `json:"rname"`
 }
 
+type AddFriendCommit struct {
+	Uid       int `json:"uid"  binding:"required"`
+	MessageId int `json:"message_id" binding:"required"`
+}
+
 func (r *LoginValidate) GetError() {
 
 }

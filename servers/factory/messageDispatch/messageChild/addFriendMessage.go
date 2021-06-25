@@ -13,6 +13,7 @@ func (this *AddFriendMessage) CheckSendMessageHasError(msg *message.Message) err
 	if msg.GroupId != 0 {
 		return errors.New("禁止发送群消息")
 	}
+	msg.MessageContent = "你有一个好友请求"
 	return nil
 }
 

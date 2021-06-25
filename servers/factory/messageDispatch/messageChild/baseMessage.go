@@ -77,8 +77,8 @@ func (this *BaseMessage) InsertData(msg *message.Message, msgcontent string, isS
 		message_num = 1
 	}
 	res, err := mysql.DB.Exec("INSERT INTO `message_list`"+
-		"(`uid`,`from_id`,`message_content`,`message_type`,`created_time`,`update_time`,`message_num`)"+
-		"VALUES (?,?,?,?,?,?,?)", msg.ReceiveUid, msg.SendUid, msgcontent, msg.MessageType, msg.CreatedTime, msg.CreatedTime, message_num)
+		"(`uid`,`from_id`,`message_content`,`message_type`,`created_time`,`update_time`,`message_num`,`message_id`)"+
+		"VALUES (?,?,?,?,?,?,?,?)", msg.ReceiveUid, msg.SendUid, msgcontent, msg.MessageType, msg.CreatedTime, msg.CreatedTime, message_num, msg.Id)
 	if err != nil {
 		fmt.Println("clientManager line 41", res, err)
 		return err
@@ -133,12 +133,14 @@ func (this *BaseMessage) GetTitle(longContent string) string {
 func (this *BaseMessage) InsertMessage(msg *message.Message) error {
 	res, err := mysql.DB.Exec(
 		"INSERT INTO `message`"+
-			"(`message_content`,`send_uid`,`receive_uid`,`created_time`) "+
-			"VALUES (?,?,?,?)", msg.MessageContent, msg.SendUid, msg.ReceiveUid, msg.CreatedTime)
+			"(`message_content`,`send_uid`,`receive_uid`,`created_time`,`message_type`) "+
+			"VALUES (?,?,?,?,?)", msg.MessageContent, msg.SendUid, msg.ReceiveUid, msg.CreatedTime, msg.MessageType)
 	if err != nil {
-		fmt.Println("clientManager line 126: ", res, err)
+		fmt.Println("clientManager line 139: ", res, err)
 		return err
 	}
+	insertId, err := res.LastInsertId()
+	msg.Id = int(insertId)
 	return nil
 }
 

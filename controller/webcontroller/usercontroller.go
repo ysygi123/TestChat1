@@ -139,7 +139,24 @@ func AddFriendRequest(c *gin.Context) {
 
 //同意加好友
 func AddFriendCommit(c *gin.Context) {
-
+	addFriendCommit := &uservalidate.AddFriendCommit{}
+	err := common.AutoValidate(c, addFriendCommit)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+	msg := &message.Message{}
+	row := mysql.DB.QueryRow("SELECT `send_uid`,`receive_uid` FROM `message` WHERE `id`=?", addFriendCommit.MessageId)
+	t := uint64(time.Now().Unix())
+	err = row.Scan(&msg.SendUid, &msg.ReceiveUid)
+	_, err = mysql.DB.Exec("INSERT INTO `user_friends` (`uid`,`friend_uid`,`created_time`,`update_time`) VALUES "+
+		"(?,?,?,?),(?,?,?,?)",
+		msg.SendUid, msg.ReceiveUid, t, t, msg.ReceiveUid, msg.SendUid, t, t)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, "已经存在此好友", nil)
+		return
+	}
+	common.ReturnResponse(c, 200, 200, "success", nil)
 }
 
 //获取好友列表

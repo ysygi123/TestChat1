@@ -26,4 +26,5 @@ type MessageList struct {
 	CreatedTime    uint64 `db:"created_time" json:"created_time"`
 	UpdateTime     uint64 `db:"created_time" json:"created_time"`
 	MessageContent string `db:"message_content" json:"message_content"`
+	MessageId      int    `db:"message_id" json:"message_id"`
 }

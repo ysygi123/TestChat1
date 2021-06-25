@@ -14,6 +14,7 @@ func SetWebRoute() {
 	web.GinEniger.GET("/user/LookClient", webcontroller.LookClient)
 	web.GinEniger.POST("/user/AuthClient", webcontroller.AuthClient)
 	web.GinEniger.POST("/user/AddFriendRequest", webcontroller.AddFriendRequest)
+	web.GinEniger.POST("/user/AddFriendCommit", webcontroller.AddFriendCommit)
 	web.GinEniger.GET("/user/GetFriendsList/:uid", webcontroller.GetFriendsList)
 	web.GinEniger.POST("/message/SendMessage", webcontroller.SendMessage)
 }
