@@ -2,6 +2,7 @@ package messageChild
 
 import (
 	"TestChat1/model/message"
+	"TestChat1/servers/UserService"
 	"errors"
 )
 
@@ -19,6 +20,10 @@ func (this *AddFriendMessage) CheckSendMessageHasError(msg *message.Message) err
 
 func (this *AddFriendMessage) PushMessage(msg *message.Message) error {
 	if err := this.CheckSendMessageHasError(msg); err != nil {
+		return err
+	}
+	err := userService.CheckHadRequestAndHadFriend(msg.SendUid, msg.ReceiveUid)
+	if err != nil {
 		return err
 	}
 	return this.SelfPushMessage(msg)

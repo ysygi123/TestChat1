@@ -4,9 +4,7 @@ import (
 	"TestChat1/common"
 	"TestChat1/model/message"
 	"TestChat1/servers/factory/messageDispatch"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"reflect"
 	"time"
 )
 
@@ -20,13 +18,9 @@ func SendMessage(c *gin.Context) {
 	}
 	msg.CreatedTime = uint64(time.Now().Unix())
 
-	fmt.Printf("奇奇怪怪 %+v\n\n", msg)
-
 	mfc, err := messageDispatch.CreateMessage(map[string]interface{}{
 		"messageType": msg.MessageType,
 	})
-
-	fmt.Println(reflect.TypeOf(mfc))
 
 	if err != nil {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)

@@ -6,6 +6,7 @@ import (
 	"TestChat1/db/redis"
 	"TestChat1/model/message"
 	"TestChat1/model/user"
+	"TestChat1/servers/UserService"
 	"TestChat1/servers/websocket"
 	"TestChat1/vaildate/uservalidate"
 	"encoding/json"
@@ -112,7 +113,7 @@ func AuthClient(c *gin.Context) {
 	common.ReturnResponse(c, 200, 200, "成功", nil)
 }
 
-//加好友请求
+//加好友请求 暂时作废
 func AddFriendRequest(c *gin.Context) {
 	userAddRequest := &uservalidate.AddFriendRequest{}
 	err := common.AutoValidate(c, userAddRequest)
@@ -127,6 +128,10 @@ func AddFriendRequest(c *gin.Context) {
 		ReceiveUid:     userAddRequest.ReceiveUid,
 		CreatedTime:    uint64(time.Now().Unix()),
 		MessageContent: userAddRequest.Rname + "向您发出好友请求",
+	}
+	err = userService.CheckHadFriend(msg.SendUid, msg.ReceiveUid)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 	}
 	jsonStr, err := json.Marshal(msg)
 	_, err = rec.Do("LPUSH", "message_queue", jsonStr)
@@ -146,9 +151,15 @@ func AddFriendCommit(c *gin.Context) {
 		return
 	}
 	msg := &message.Message{}
+
 	row := mysql.DB.QueryRow("SELECT `send_uid`,`receive_uid` FROM `message` WHERE `id`=?", addFriendCommit.MessageId)
 	t := uint64(time.Now().Unix())
 	err = row.Scan(&msg.SendUid, &msg.ReceiveUid)
+	err = userService.CheckHadFriend(msg.SendUid, msg.ReceiveUid)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
 	_, err = mysql.DB.Exec("INSERT INTO `user_friends` (`uid`,`friend_uid`,`created_time`,`update_time`) VALUES "+
 		"(?,?,?,?),(?,?,?,?)",
 		msg.SendUid, msg.ReceiveUid, t, t, msg.ReceiveUid, msg.SendUid, t, t)
