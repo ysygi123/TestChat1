@@ -2,7 +2,7 @@ package messageChild
 
 import (
 	"TestChat1/model/message"
-	"TestChat1/servers/UserService"
+	"TestChat1/servers/userService"
 	"errors"
 )
 

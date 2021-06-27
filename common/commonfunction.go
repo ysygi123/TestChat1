@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -54,4 +55,24 @@ func CheckWebSocketParamsIsUnEmpty(keyNames []string, m *map[string]interface{})
 		}
 	}
 	return nil
+}
+
+//拼接mysql后面多少个问号的方法
+func Placeholders(n int) string {
+	var b strings.Builder
+	for i := 0; i < n-1; i++ {
+		b.WriteString("?,")
+	}
+	if n > 0 {
+		b.WriteString("?")
+	}
+	return b.String()
+}
+
+func IntJoin(u []int, n int) string {
+	s := ""
+	for _, v := range u {
+		s += strconv.Itoa(v) + ","
+	}
+	return strings.TrimRight(s, ",")
 }

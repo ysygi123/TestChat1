@@ -6,7 +6,7 @@ import (
 	"TestChat1/db/redis"
 	"TestChat1/model/message"
 	"TestChat1/model/user"
-	"TestChat1/servers/UserService"
+	"TestChat1/servers/userService"
 	"TestChat1/servers/websocket"
 	"TestChat1/vaildate/uservalidate"
 	"encoding/json"

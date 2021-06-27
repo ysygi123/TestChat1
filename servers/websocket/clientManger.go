@@ -44,6 +44,24 @@ func (this *ClientManger) GetClient(uid int) (c *Client, e error) {
 	return
 }
 
+//批量获取Client的链接
+func (this *ClientManger) GetManyClient(uids []int) (c []*Client, e error) {
+	this.RWLock.RLock()
+	for k, v := range uids {
+		if (k+1)%100 == 0 {
+			this.RWLock.RUnlock()
+			this.RWLock.RLock()
+		}
+		cc, ok := this.Clients[v]
+		if !ok {
+			continue
+		}
+		c = append(c, cc)
+	}
+	this.RWLock.RUnlock()
+	return
+}
+
 func (this *ClientManger) DelClient(uid int) {
 	this.RWLock.Lock()
 	delete(this.Clients, uid)
