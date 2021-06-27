@@ -147,8 +147,6 @@ func (this *BaseMessage) InsertMessage(msg *message.Message) error {
 
 //主要逻辑
 func (this *BaseMessage) AddMessage(msg *message.Message) error {
-	//即时发送消息
-	go this.WebSocketRequest(msg)
 	//处理消息入库
 	res, err := mysql.DB.Exec("BEGIN")
 	msg.CreatedTime = uint64(time.Now().Unix())
@@ -173,5 +171,8 @@ func (this *BaseMessage) AddMessage(msg *message.Message) error {
 	if err != nil {
 		fmt.Println(res, err)
 	}
+	msg.ReceiveUid, msg.SendUid = msg.SendUid, msg.ReceiveUid
+	//即时发送消息
+	go this.WebSocketRequest(msg)
 	return nil
 }

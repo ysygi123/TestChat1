@@ -36,6 +36,9 @@ func (this *GroupMessage) AddMessage(msg *message.Message) error {
 		return err
 	}
 	allOnLineUids := this.getIsLoginUids(allUids)
+	if err := this.SetInDataBase(allUids, msg); err != nil {
+		return err
+	}
 	go this.WebSocketRequest(msg, allOnLineUids)
 
 	return nil

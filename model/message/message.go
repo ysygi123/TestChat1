@@ -7,6 +7,7 @@ type PipelineMessage struct {
 }
 
 type Message struct {
+	IsDel          uint8  `db:"is_del" json:"is_del"`
 	MessageType    uint8  `db:"message_type" json:"message_type"`
 	Id             int    `db:"id" json:"id"`
 	SendUid        int    `db:"send_uid" json:"send_uid"`

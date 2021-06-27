@@ -17,6 +17,7 @@ type UserFriend struct {
 }
 
 type UserAddFriendRequest struct {
+	IsDel       uint8  `db:"is_del" json:"is_del"`
 	Id          int    `json:"id" db:"id"`
 	RequestUid  int    `json:"request_uid" db:"request_uid"`
 	ReceiveUid  int    `json:"receive_uid" db:"receive_uid"`

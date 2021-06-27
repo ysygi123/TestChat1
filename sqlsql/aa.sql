@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS `message` (
 	`created_time` INT(10) NOT NULL DEFAULT '0' COMMENT '创建时间戳',
 	`group_id` INT(10) NOT NULL DEFAULT '0' COMMENT '群id',
 	`message_type` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '1用户消息message 2群消息 3加好友请求 4群邀请 5群申请',
+	`is_del` TINYINT(4) NOT NULL DEFAULT '1' COMMENT '1红点 2删 3已读',
 	PRIMARY KEY (`id`) USING BTREE,
 	INDEX `send_uid` (`send_uid`) USING BTREE,
 	INDEX `receive_uid` (`receive_uid`) USING BTREE,
@@ -87,10 +88,10 @@ CREATE TABLE IF NOT EXISTS `message` (
 -- 正在导出表  testchat1.message 的数据：~3 rows (大约)
 DELETE FROM `message`;
 /*!40000 ALTER TABLE `message` DISABLE KEYS */;
-INSERT INTO `message` (`id`, `message_content`, `send_uid`, `receive_uid`, `created_time`, `group_id`, `message_type`) VALUES
-	(1, '你有一个好友请求', 1, 2, 1624777618, 0, 3),
-	(2, '我是天才111111', 1, 2, 1624777708, 0, 1),
-	(3, '欢迎加入群', 0, 0, 1624783310, 1, 2);
+INSERT INTO `message` (`id`, `message_content`, `send_uid`, `receive_uid`, `created_time`, `group_id`, `message_type`, `is_del`) VALUES
+	(1, '你有一个好友请求', 1, 2, 1624777618, 0, 3, 1),
+	(2, '我是天才111111', 1, 2, 1624777708, 0, 1, 1),
+	(3, '欢迎加入群', 0, 0, 1624783310, 1, 2, 1);
 /*!40000 ALTER TABLE `message` ENABLE KEYS */;
 
 -- 导出  表 testchat1.message_list 结构
@@ -151,6 +152,7 @@ CREATE TABLE IF NOT EXISTS `user_add_friend_request` (
 	`request_uid` INT(11) NOT NULL DEFAULT '0',
 	`receive_uid` INT(11) NOT NULL DEFAULT '0',
 	`created_time` INT(11) NOT NULL DEFAULT '0',
+	`is_del` TINYINT(4) NOT NULL DEFAULT '1' COMMENT '1红点 2删除 3已读',
 	PRIMARY KEY (`id`) USING BTREE,
 	INDEX `request_uid` (`request_uid`) USING BTREE,
 	INDEX `receive_uid` (`receive_uid`) USING BTREE
