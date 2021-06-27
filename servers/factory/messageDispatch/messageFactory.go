@@ -13,6 +13,7 @@ var MessageFactory = make(map[uint8]MessageOpsFactory)
 func init() {
 	Register(uint8(0), NewAddBaseMessage)
 	Register(uint8(1), NewUserMessage)
+	Register(uint8(2), NewGroupMessage)
 	Register(uint8(3), NewAddFriendMessage)
 }
 
@@ -59,4 +60,9 @@ func NewAddFriendMessage(conf map[string]interface{}) (MessageInterface, error) 
 func NewAddBaseMessage(conf map[string]interface{}) (MessageInterface, error) {
 	fmt.Println("create baseMessage")
 	return &messageChild.BaseMessage{}, nil
+}
+
+func NewGroupMessage(conf map[string]interface{}) (MessageInterface, error) {
+	fmt.Println("create groupMessage")
+	return &messageChild.GroupMessage{}, nil
 }

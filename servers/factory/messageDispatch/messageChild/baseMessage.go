@@ -130,11 +130,12 @@ func (this *BaseMessage) GetTitle(longContent string) string {
 	return msgcontent
 }
 
+//插入message表
 func (this *BaseMessage) InsertMessage(msg *message.Message) error {
 	res, err := mysql.DB.Exec(
 		"INSERT INTO `message`"+
 			"(`message_content`,`send_uid`,`receive_uid`,`created_time`,`message_type`,`group_id`) "+
-			"VALUES (?,?,?,?,?)", msg.MessageContent, msg.SendUid, msg.ReceiveUid, msg.CreatedTime, msg.MessageType, msg.GroupId)
+			"VALUES (?,?,?,?,?,?)", msg.MessageContent, msg.SendUid, msg.ReceiveUid, msg.CreatedTime, msg.MessageType, msg.GroupId)
 	if err != nil {
 		fmt.Println("clientManager line 139: ", res, err)
 		return err

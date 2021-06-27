@@ -18,7 +18,7 @@ type GroupMessage struct {
 
 func (this *GroupMessage) CheckSendMessageHasError(msg *message.Message) error {
 	if msg.GroupId == 0 || msg.ReceiveUid != 0 {
-		return errors.New("群消息格式错误")
+		return errors.New("群消息格式错误 group_id : " + strconv.Itoa(msg.GroupId) + "  receiveuid : " + strconv.Itoa(msg.ReceiveUid))
 	}
 	return nil
 }

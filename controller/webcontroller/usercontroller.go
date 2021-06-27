@@ -160,9 +160,20 @@ func AddFriendCommit(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
+
+	_, err = mysql.DB.Exec("begin")
 	_, err = mysql.DB.Exec("INSERT INTO `user_friends` (`uid`,`friend_uid`,`created_time`,`update_time`) VALUES "+
 		"(?,?,?,?),(?,?,?,?)",
 		msg.SendUid, msg.ReceiveUid, t, t, msg.ReceiveUid, msg.SendUid, t, t)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, "已经存在此好友", nil)
+		return
+	}
+	_, err = mysql.DB.Exec("insert into message_list  (uid,from_id,message_content,message_type,created_time,update_time,message_num) values "+
+		"(?,?,'你们已经成为好友',1,?,?,1),"+
+		"(?,?,'你们已经成为好友',1,?,?,1)",
+		msg.SendUid, msg.ReceiveUid, t, t, msg.ReceiveUid, msg.SendUid, t, t)
+	_, err = mysql.DB.Exec("commit")
 	if err != nil {
 		common.ReturnResponse(c, 200, 400, "已经存在此好友", nil)
 		return

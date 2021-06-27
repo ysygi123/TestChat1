@@ -17,6 +17,7 @@ func SetWebRoute() {
 	web.GinEniger.GET("/user/GetFriendsList/:uid", webcontroller.GetFriendsList)
 	web.GinEniger.GET("/message/GetMessageList/:uid", webcontroller.GetMessageList)
 	web.GinEniger.POST("/message/SendMessage", webcontroller.SendMessage)
-	web.GinEniger.POST("/group/AddGroup", webcontroller.AddGroup)
+	web.GinEniger.POST("/group/CreateGroup", webcontroller.CreateGroup)
 	web.GinEniger.GET("/group/GroupList/:uid", webcontroller.GroupList)
+	web.GinEniger.POST("/group/AddToGroupCommit", webcontroller.AddToGroupCommit)
 }
