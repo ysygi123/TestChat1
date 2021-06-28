@@ -56,10 +56,11 @@ func (this *GroupMessage) WebSocketRequest(msg *message.Message, uids []int) {
 		"message_content": msg.MessageContent,
 		"from_id":         msg.SendUid,
 		"message_type":    msg.MessageType,
+		"group_id":        msg.GroupId,
 	}
 	//后面要改 通过channel发给每个*client.WebsocketConn 各自开启一个协程阻塞监听
 	for _, c := range clients {
-		_ = c.WebSocketConn.WriteMessage(1, common.GetJsonByteData(wmsg))
+		c.SendMsg(wmsg)
 	}
 }
 

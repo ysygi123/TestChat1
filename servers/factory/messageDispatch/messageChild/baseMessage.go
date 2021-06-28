@@ -102,10 +102,11 @@ func (this *BaseMessage) UpdateData(msg *message.Message, msgcontent string, id 
 	return nil
 }
 
+//目前简单的就只是私发消息的
 func (this *BaseMessage) WebSocketRequest(msg *message.Message) {
 	c, err := websocket.ClientMangerInstance.GetClient(msg.ReceiveUid)
 	if err != nil {
-		fmt.Println("错误")
+		fmt.Println("错误 --109", err)
 		return
 	}
 	wmsg := common.GetNewWebSocketRequest("GetMessage")
@@ -114,7 +115,7 @@ func (this *BaseMessage) WebSocketRequest(msg *message.Message) {
 		"from_id":         msg.SendUid,
 		"message_type":    msg.MessageType,
 	}
-	_ = c.WebSocketConn.WriteMessage(1, common.GetJsonByteData(wmsg))
+	c.SendMsg(wmsg)
 }
 
 func (this *BaseMessage) GetTitle(longContent string) string {

@@ -4,11 +4,13 @@ import (
 	"TestChat1/common"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gorilla/websocket"
+	"runtime/debug"
 )
 
 type Client struct {
-	ErrChan        chan struct{}
+	MessageChannel chan *common.WebSocketRequest
 	Uid            int
 	BelongServerID int
 	HeartBreath    uint64
@@ -19,7 +21,7 @@ type Client struct {
 
 func NewClient(ip string, uid int, heartBreath uint64, websocketConn *websocket.Conn) *Client {
 	return &Client{
-		ErrChan:        make(chan struct{}, 1),
+		MessageChannel: make(chan *common.WebSocketRequest, 1000),
 		Ip:             ip,
 		Uid:            uid,
 		HeartBreath:    heartBreath,
@@ -29,8 +31,18 @@ func NewClient(ip string, uid int, heartBreath uint64, websocketConn *websocket.
 	}
 }
 
+//读消息
 func (this *Client) ReadData() {
-	defer func() { this.ErrChan <- struct{}{} }()
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("我输错啦 这里是读", string(debug.Stack()), r)
+		}
+	}()
+
+	defer func() {
+		close(this.MessageChannel)
+	}()
+
 	for {
 		mesType, mesg, err := this.WebSocketConn.ReadMessage()
 		if err != nil {
@@ -40,6 +52,46 @@ func (this *Client) ReadData() {
 		}
 		this.handleData(mesType, mesg)
 	}
+}
+
+//向conn端写消息
+func (this *Client) WriteData() {
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("我输错啦 这里是写写写", string(debug.Stack()), r)
+		}
+	}()
+	//向manager的这个发送关闭信息
+	defer func() {
+		ClientMangerInstance.CloseChan <- this.Uid
+	}()
+
+	for {
+		select {
+		case msg, ok := <-this.MessageChannel:
+			if !ok {
+				//关闭连接
+				return
+			}
+
+			_ = this.WebSocketConn.WriteMessage(websocket.TextMessage, common.GetJsonByteData(msg))
+		}
+	}
+}
+
+//发送消息用的 对外提供投送消息
+func (this *Client) SendMsg(msg *common.WebSocketRequest) {
+
+	if this == nil {
+		return
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("我已经没了", r, string(debug.Stack()))
+		}
+	}()
+	this.MessageChannel <- msg
 }
 
 //客户端操作数据
@@ -70,8 +122,4 @@ func (this *Client) HandleErrorData(err error, mesType int, cmd string) {
 	s.Body["err"] = err.Error()
 	this.WebSocketConn.WriteMessage(mesType, common.GetJsonByteData(s))
 	ClientMangerInstance.CloseChan <- this.Uid
-}
-
-func (this *Client) WriteData() {
-
 }

@@ -54,6 +54,7 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 	c := ww.NewClient(conn.RemoteAddr().String(), uid, uint64(time.Now().Unix()), conn)
 	ww.ClientMangerInstance.AddClient(uid, c)
 	go c.ReadData()
+	go c.WriteData()
 	b, err := json.Marshal(returnData)
 	err = conn.WriteMessage(websocket.TextMessage, b)
 	if err != nil {
