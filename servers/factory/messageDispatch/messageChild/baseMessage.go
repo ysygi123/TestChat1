@@ -43,14 +43,14 @@ func (this *BaseMessage) SelfPushMessage(msg *message.Message) error {
 	return nil
 }
 
-func (this *BaseMessage) CommonHandle(ml *message.MessageList, resq *sql.Row, msg *message.Message, msgcontent string, isSelf bool) error {
+func (this *BaseMessage) CommonHandle(ml *message.MessageList, resq *sql.Row, msg *message.Message, msgcontent string, isSelf bool, tx *sql.Tx) error {
 	resq.Scan(&ml.Id, &ml.MessageNum, &ml.Uid, &ml.FromId)
 	if ml.Id == 0 {
-		if err := this.InsertData(msg, msgcontent, isSelf); err != nil {
+		if err := this.InsertData(msg, msgcontent, isSelf, tx); err != nil {
 			return err
 		}
 	} else {
-		if err := this.UpdateData(msg, msgcontent, ml.Id, isSelf); err != nil {
+		if err := this.UpdateData(msg, msgcontent, ml.Id, isSelf, tx); err != nil {
 			return err
 		}
 	}
@@ -58,26 +58,26 @@ func (this *BaseMessage) CommonHandle(ml *message.MessageList, resq *sql.Row, ms
 }
 
 //查询 我发出去的消息 也就是接收人的消息面板是不是要有红点
-func (this *BaseMessage) ISendMessage(ml *message.MessageList, msg *message.Message, msgcontent string) error {
-	resq := mysql.DB.QueryRow("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE `from_id`=? AND `message_type`=? limit 1", msg.SendUid, msg.MessageType)
-	return this.CommonHandle(ml, resq, msg, msgcontent, true)
+func (this *BaseMessage) ISendMessage(ml *message.MessageList, msg *message.Message, msgcontent string, tx *sql.Tx) error {
+	resq := tx.QueryRow("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE `from_id`=? AND `message_type`=? limit 1", msg.SendUid, msg.MessageType)
+	return this.CommonHandle(ml, resq, msg, msgcontent, true, tx)
 }
 
 //查询 我收的消息里面是不是要有红点
-func (this *BaseMessage) IReceiverSendMessage(ml *message.MessageList, msg *message.Message, msgcontent string) error {
-	resq := mysql.DB.QueryRow("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE `uid`=? AND `message_type`=? limit 1", msg.SendUid, msg.MessageType)
+func (this *BaseMessage) IReceiverSendMessage(ml *message.MessageList, msg *message.Message, msgcontent string, tx *sql.Tx) error {
+	resq := tx.QueryRow("SELECT `id`,`message_num`,`uid`,`from_id` FROM `message_list` WHERE `uid`=? AND `message_type`=? limit 1", msg.SendUid, msg.MessageType)
 	msg.SendUid, msg.ReceiveUid = msg.ReceiveUid, msg.SendUid
-	return this.CommonHandle(ml, resq, msg, msgcontent, false)
+	return this.CommonHandle(ml, resq, msg, msgcontent, false, tx)
 }
 
 //新增
-func (this *BaseMessage) InsertData(msg *message.Message, msgcontent string, isSelf bool) error {
+func (this *BaseMessage) InsertData(msg *message.Message, msgcontent string, isSelf bool, tx *sql.Tx) error {
 	//自己发送的消息，不需要红点
 	message_num := 0
 	if isSelf {
 		message_num = 1
 	}
-	res, err := mysql.DB.Exec("INSERT INTO `message_list`"+
+	res, err := tx.Exec("INSERT INTO `message_list`"+
 		"(`uid`,`from_id`,`message_content`,`message_type`,`created_time`,`update_time`,`message_num`,`message_id`)"+
 		"VALUES (?,?,?,?,?,?,?,?)", msg.ReceiveUid, msg.SendUid, msgcontent, msg.MessageType, msg.CreatedTime, msg.CreatedTime, message_num, msg.Id)
 	if err != nil {
@@ -88,14 +88,14 @@ func (this *BaseMessage) InsertData(msg *message.Message, msgcontent string, isS
 }
 
 //修改
-func (this *BaseMessage) UpdateData(msg *message.Message, msgcontent string, id int, isSelf bool) error {
+func (this *BaseMessage) UpdateData(msg *message.Message, msgcontent string, id int, isSelf bool, tx *sql.Tx) error {
 	sqlsql := "UPDATE `message_list` SET " +
 		"`message_content`=?,update_time=?,"
 	if isSelf {
 		sqlsql += "`message_num`=`message_num`+1,"
 	}
 	sqlsql += "`is_del`=1 WHERE id=?"
-	res, err := mysql.DB.Exec(sqlsql, msgcontent, msg.CreatedTime, id)
+	res, err := tx.Exec(sqlsql, msgcontent, msg.CreatedTime, id)
 	if err != nil {
 		fmt.Println("clientManager line 54", res, err)
 		return err
@@ -150,29 +150,26 @@ func (this *BaseMessage) InsertMessage(msg *message.Message) error {
 //主要逻辑
 func (this *BaseMessage) AddMessage(msg *message.Message) error {
 	//处理消息入库
-	res, err := mysql.DB.Exec("BEGIN")
+	tx, err := mysql.DB.Begin()
 	msg.CreatedTime = uint64(time.Now().Unix())
 	err = this.InsertMessage(msg)
 	if err != nil {
-		mysql.DB.Exec("ROLLBACK")
+		tx.Rollback()
 	}
 	//获取这个标题
 	msgcontent := this.GetTitle(msg.MessageContent)
 	ml := new(message.MessageList)
-	if err = this.ISendMessage(ml, msg, msgcontent); err != nil {
+	if err = this.ISendMessage(ml, msg, msgcontent, tx); err != nil {
 		fmt.Println("ClientManager 116 : ", err)
-		mysql.DB.Exec("ROLLBACK")
+		tx.Rollback()
 		return err
 	}
 	if err = this.IReceiverSendMessage(ml, msg, msgcontent); err != nil {
 		fmt.Println("ClientManager 120 : ", err)
-		mysql.DB.Exec("ROLLBACK")
+		tx.Rollback()
 		return err
 	}
-	res, err = mysql.DB.Exec("COMMIT")
-	if err != nil {
-		fmt.Println(res, err)
-	}
+	tx.Commit()
 	msg.ReceiveUid, msg.SendUid = msg.SendUid, msg.ReceiveUid
 	//即时发送消息
 	go this.WebSocketRequest(msg)

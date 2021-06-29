@@ -17,23 +17,32 @@ func CreateGroup(c *gin.Context) {
 		return
 	}
 	t := uint64(time.Now().Unix())
-	result, err := mysql.DB.Exec("INSERT INTO `group` (`group_name`,`created_uid`,`created_time`,`update_time`) VALUES (?,?,?,?)",
+	tx, err := mysql.DB.Begin()
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+	result, err := tx.Exec("INSERT INTO `group` (`group_name`,`created_uid`,`created_time`,`update_time`) VALUES (?,?,?,?)",
 		groupCreateValidate.GroupName, groupCreateValidate.CreatedUid, t, t)
 	if err != nil {
+		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
 	groupId, err := result.LastInsertId()
 	if err != nil {
+		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
-	_, err = mysql.DB.Exec("INSERT INTO `group_users` (`uid`,`group_id`, `created_time`,`update_time`) VALUES (?,?,?,?)",
+	_, err = tx.Exec("INSERT INTO `group_users` (`uid`,`group_id`, `created_time`,`update_time`) VALUES (?,?,?,?)",
 		groupCreateValidate.CreatedUid, groupId, t, t)
 	if err != nil {
+		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
+	tx.Commit()
 	common.ReturnResponse(c, 200, 200, "success", nil)
 }
 
@@ -65,46 +74,46 @@ func AddToGroupCommit(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
-	_, err := mysql.DB.Exec("begin")
+	tx, err := mysql.DB.Begin()
 	if err != nil {
-		mysql.DB.Exec("rollback")
+		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
 	t := uint64(time.Now().Unix())
-	_, err = mysql.DB.Exec("insert into group_users (uid,group_id,created_time,update_time) values (?,?,?,?)",
+	_, err = tx.Exec("insert into group_users (uid,group_id,created_time,update_time) values (?,?,?,?)",
 		addToGroupCommit.Uid, addToGroupCommit.GroupId, t, t)
 	if err != nil {
-		mysql.DB.Exec("rollback")
+		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
 
-	result, err := mysql.DB.Exec("insert into message (message_content,created_time,group_id,message_type) "+
+	result, err := tx.Exec("insert into message (message_content,created_time,group_id,message_type) "+
 		"values ('欢迎加入群',?,?,?)", t, addToGroupCommit.GroupId, 2)
 	if err != nil {
-		mysql.DB.Exec("rollback")
+		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
 	idI64, err := result.LastInsertId()
 	id := int(idI64)
 
-	_, err = mysql.DB.Exec("insert into message_list(message_content,uid,from_id,message_type,created_time,update_time,message_num,message_id) values ("+
+	_, err = tx.Exec("insert into message_list(message_content,uid,from_id,message_type,created_time,update_time,message_num,message_id) values ("+
 		"'欢迎加入群',?,?,2,?,?,1,?)",
 		addToGroupCommit.Uid, addToGroupCommit.GroupId, t, t, id)
 	if err != nil {
-		mysql.DB.Exec("rollback")
+		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
 
-	_, err = mysql.DB.Exec("update `group` set people_num=people_num+1 where id=?", addToGroupCommit.GroupId)
+	_, err = tx.Exec("update `group` set people_num=people_num+1 where id=?", addToGroupCommit.GroupId)
 	if err != nil {
-		mysql.DB.Exec("rollback")
+		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
-	mysql.DB.Exec("commit")
+	tx.Commit()
 	common.ReturnResponse(c, 200, 200, "success", nil)
 }

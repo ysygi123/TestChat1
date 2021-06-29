@@ -9,13 +9,13 @@ import (
 )
 
 func main() {
-	fatherWG := new(sync.WaitGroup)
+	/*fatherWG := new(sync.WaitGroup)
 	for j := 1; j < 3; j++ {
 		fatherWG.Add(1)
 		go imitate(j, fatherWG)
 	}
-	fatherWG.Wait()
-	//AddGroup()
+	fatherWG.Wait()*/
+	AddGroup()
 }
 
 var prefixHttpUrl = "http://127.0.0.1:8088"

@@ -66,7 +66,7 @@ func (this *GroupMessage) WebSocketRequest(msg *message.Message, uids []int) {
 
 //数据库操作
 func (this *GroupMessage) SetInDataBase(allUids []int, msg *message.Message) error {
-	mysql.DB.Exec("begin")
+	tx, err := mysql.DB.Begin()
 	if err := this.InsertMessage(msg); err != nil {
 		return err
 	}
@@ -75,12 +75,12 @@ func (this *GroupMessage) SetInDataBase(allUids []int, msg *message.Message) err
 	sqlsql := "update message_list set " +
 		"message_content=? and message_num=message_num+1 and update_time=? and is_del=1 where from_id=? and message_type=2 and uid in (" +
 		common.IntJoin(allUids, len(allUids)) + ")"
-	_, err := mysql.DB.Query(sqlsql, title, uint64(time.Now().Unix()), msg.GroupId)
+	_, err = mysql.DB.Query(sqlsql, title, uint64(time.Now().Unix()), msg.GroupId)
 	if err != nil {
 		return err
 	}
 	//默认加群就给一条消息，省去新增步骤
-	mysql.DB.Exec("commit")
+	tx.Commit()
 	return nil
 }
 
