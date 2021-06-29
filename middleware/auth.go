@@ -10,6 +10,7 @@ func AuthSession() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := c.GetHeader("session")
 		rec := redis.RedisPool.Get()
+		defer rec.Close()
 		res, err := rec.Do("HGET", session, "uid")
 		if err != nil {
 			common.ReturnResponse(c, 200, 400, err.Error(), nil)

@@ -42,6 +42,7 @@ func Login(c *gin.Context) {
 	//获取session
 	session := common.GetSession(userParams.Username)
 	rec := redis.RedisPool.Get()
+	defer rec.Close()
 	//判断是否登录
 	replay, err := rec.Do("GET", "uidlogin:"+userData["uid"])
 	if err != nil {
@@ -90,6 +91,7 @@ func AuthClient(c *gin.Context) {
 		return
 	}
 	rec := redis.RedisPool.Get()
+	defer rec.Close()
 	reply, err := rec.Do("HGET", authParams.Session, "uid")
 	if err != nil {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
@@ -122,6 +124,7 @@ func AddFriendRequest(c *gin.Context) {
 		return
 	}
 	rec := redis.RedisPool.Get()
+	defer rec.Close()
 	msg := &message.Message{
 		MessageType:    uint8(3),
 		SendUid:        userAddRequest.SendUid,

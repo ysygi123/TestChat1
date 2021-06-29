@@ -67,10 +67,13 @@ func CheckHasThisUid(uid int) (bool, error) {
 	rec := redis.RedisPool.Get()
 	replay, err := rec.Do("GET", "uidlogin:"+strconv.Itoa(uid))
 	if err != nil {
+		rec.Close()
 		return false, err
 	}
 	if replay == nil {
+		rec.Close()
 		return false, nil
 	}
+	rec.Close()
 	return true, nil
 }

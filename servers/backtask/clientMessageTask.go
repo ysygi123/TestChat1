@@ -16,6 +16,7 @@ func TaskConsumeMessage() {
 		wg.Add(1)
 		go func(wg *sync.WaitGroup) {
 			rec := redis.RedisPool.Get()
+			defer rec.Close()
 			for {
 				reply, err := rec.Do("BRPOP", "message_queue", 0)
 				if err != nil {

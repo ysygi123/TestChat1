@@ -71,6 +71,7 @@ func (this *GroupMessage) SetInDataBase(allUids []int, msg *message.Message) err
 		return err
 	}
 	title := this.GetTitle(msg.MessageContent)
+	fmt.Println("查看群聊的title是什么 : ", title)
 	sqlsql := "update message_list set " +
 		"message_content=? and message_num=message_num+1 and update_time=? and is_del=1 where from_id=? and message_type=2 and uid in (" +
 		common.IntJoin(allUids, len(allUids)) + ")"
@@ -107,7 +108,7 @@ func (this *GroupMessage) getIsLoginUids(uids []int) []int {
 		strKeys = append(strKeys, "uidlogin:"+strconv.Itoa(uid))
 	}
 	rec := redis.RedisPool.Get()
-
+	defer rec.Close()
 	replay, err := rec.Do("MGET", strKeys...)
 	if err != nil {
 		return nil

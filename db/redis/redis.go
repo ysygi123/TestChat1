@@ -6,6 +6,7 @@ import (
 
 var RedisPool *redgio.Pool
 
+//连接过多的时候会出现 redigo: connection pool exhausted 需要及时close 好像 GET方法里面也有些 must close
 func NewRedisDB() {
 	RedisPool = &redgio.Pool{
 		MaxIdle:   1000,
@@ -17,6 +18,7 @@ func NewRedisDB() {
 			}
 			return
 		},
+		Wait: true,
 	}
 
 }
