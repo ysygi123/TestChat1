@@ -164,7 +164,7 @@ func (this *BaseMessage) AddMessage(msg *message.Message) error {
 		tx.Rollback()
 		return err
 	}
-	if err = this.IReceiverSendMessage(ml, msg, msgcontent); err != nil {
+	if err = this.IReceiverSendMessage(ml, msg, msgcontent, tx); err != nil {
 		fmt.Println("ClientManager 120 : ", err)
 		tx.Rollback()
 		return err
