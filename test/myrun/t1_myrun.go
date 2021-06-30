@@ -9,17 +9,17 @@ import (
 )
 
 func main() {
-	/*fatherWG := new(sync.WaitGroup)
+	fatherWG := new(sync.WaitGroup)
 	for j := 1; j < 3; j++ {
 		fatherWG.Add(1)
 		go imitate(j, fatherWG)
 	}
-	fatherWG.Wait()*/
-	AddGroup()
+	fatherWG.Wait()
+	//AddGroup()
 }
 
-var prefixHttpUrl = "http://127.0.0.1:8088"
-var prefixWsUrl = "ws://127.0.0.1:8087"
+var prefixHttpUrl = "http://192.168.199.112:8088"
+var prefixWsUrl = "ws://192.168.199.112:8087"
 
 func imitate(uid int, fatherWG *sync.WaitGroup) {
 	//登录修改
@@ -58,16 +58,28 @@ func imitate(uid int, fatherWG *sync.WaitGroup) {
 	}
 
 	wg := new(sync.WaitGroup)
-	for num := 0; num < 100; num++ {
+	for num := 0; num < 500; num++ {
 		wg.Add(1)
 		go func() {
 			groupChatUrl := prefixHttpUrl + "/message/SendMessage"
-			requestBody = fmt.Sprintf(`{"send_uid":%d,"group_id":1,"message_content":"你好我叫%d当前时间是%s","message_type":2}`,
-				uid, uid, time.Now().Format("2006-01-02 15:04:05"))
+			requestBody = fmt.Sprintf(`{"send_uid":%d,"group_id":1,"message_content":"你好我叫%d当前时间是%d","message_type":2}`,
+				uid, uid, time.Now().UnixNano()/1e6)
 			res := testTool.MyselfPostRequest(groupChatUrl, requestBody, map[string]string{"session": session})
 			fmt.Println("查看发送聊天消息的结果是什么 : ", res)
 			wg.Done()
 		}()
+	}
+	i := 1
+	for {
+		_, err := ws.Read(msg)
+		i++
+		if err != nil {
+			break
+		}
+		fmt.Println("我是uid : ", uid, "我收到的消息是 : ", string(msg), i)
+		if i >= 499 {
+			break
+		}
 	}
 	wg.Wait()
 }

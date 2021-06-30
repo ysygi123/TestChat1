@@ -18,7 +18,7 @@ func main() {
 	websocket.WebSocketRouteMangerInit()
 	websocket.WebSocketRouteManger.AllRegisterRoute()
 	go websocket.ClientMangerInstance.LoopToKillChild()
-	go backtask.TaskConsumeMessage()
+	go backtask.AllBackTask()
 	go func() {
 		http.HandleFunc("/ws", websocketcontroller.FirstPage)
 		http.ListenAndServe(":8087", nil)

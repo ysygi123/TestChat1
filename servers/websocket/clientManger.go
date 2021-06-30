@@ -64,6 +64,12 @@ func (this *ClientManger) GetManyClient(uids []int) (c []*Client, e error) {
 
 func (this *ClientManger) DelClient(uid int) {
 	this.RWLock.Lock()
+	c, ok := this.Clients[uid]
+	if !ok {
+		this.RWLock.Unlock()
+		return
+	}
+	close(c.MessageChannel)
 	delete(this.Clients, uid)
 	this.RWLock.Unlock()
 }

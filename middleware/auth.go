@@ -8,6 +8,7 @@ import (
 
 func AuthSession() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		return
 		session := c.GetHeader("session")
 		rec := redis.RedisPool.Get()
 		defer rec.Close()

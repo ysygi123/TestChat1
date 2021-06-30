@@ -4,10 +4,16 @@ import (
 	"TestChat1/db/redis"
 	"TestChat1/model/message"
 	"TestChat1/servers/factory/messageDispatch"
+	"TestChat1/servers/websocket"
 	"encoding/json"
 	"fmt"
 	"sync"
 )
+
+func AllBackTask() {
+	go TaskConsumeMessage()
+	go CleanClient()
+}
 
 //后台任务消费消息
 func TaskConsumeMessage() {
@@ -46,4 +52,12 @@ func TaskConsumeMessage() {
 		}(wg)
 	}
 	wg.Done()
+}
+
+func CleanClient() {
+	for {
+		c := <-websocket.ClientMangerInstance.CloseChan
+		websocket.ClientMangerInstance.DelClient(c)
+		fmt.Println("删除了 : ", c, "现在的map", websocket.ClientMangerInstance.Clients)
+	}
 }

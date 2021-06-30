@@ -8,17 +8,17 @@ import (
 
 type MessageOpsFactory func(conf map[string]interface{}) (MessageInterface, error)
 
-var MessageFactory = make(map[uint8]MessageOpsFactory)
+var MessageFactory = make(map[uint8]MessageInterface)
 
 func init() {
-	Register(uint8(0), NewAddBaseMessage)
-	Register(uint8(1), NewUserMessage)
-	Register(uint8(2), NewGroupMessage)
-	Register(uint8(3), NewAddFriendMessage)
+	Register(uint8(0), NewAddBaseMessage, nil)
+	Register(uint8(1), NewUserMessage, nil)
+	Register(uint8(2), NewGroupMessage, nil)
+	Register(uint8(3), NewAddFriendMessage, nil)
 }
 
 //注册
-func Register(messageType uint8, factory MessageOpsFactory) {
+func Register(messageType uint8, factory MessageOpsFactory, conf map[string]interface{}) {
 	if factory == nil {
 		fmt.Println("没有传啊")
 		return
@@ -28,7 +28,11 @@ func Register(messageType uint8, factory MessageOpsFactory) {
 		fmt.Println("已经存在")
 		return
 	} else {
-		MessageFactory[messageType] = factory
+		mfc, err := factory(conf)
+		if err != nil {
+			fmt.Println(err)
+		}
+		MessageFactory[messageType] = mfc
 	}
 }
 
@@ -43,7 +47,7 @@ func CreateMessage(conf map[string]interface{}) (MessageInterface, error) {
 		err := errors.New("没有这个类2")
 		return nil, err
 	}
-	return opsFactory(conf)
+	return opsFactory, nil
 }
 
 //new一个的个人消息
