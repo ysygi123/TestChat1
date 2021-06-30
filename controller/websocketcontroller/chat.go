@@ -4,7 +4,6 @@ import (
 	"TestChat1/common"
 	"TestChat1/db/redis"
 	ww "TestChat1/servers/websocket"
-	"encoding/json"
 	"github.com/gorilla/websocket"
 	"net/http"
 	"strconv"
@@ -29,25 +28,49 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	uid, _ := strconv.Atoi(uidSlice[0])
-
+	wb := common.GetNewWebSocketRequest("")
+	wb.Cmd = "SendAuth"
+	conn.WriteJSON(wb)
 	hasUid, err := CheckHasThisUid(uid)
-	returnData := common.Response{
-		Code:    200,
-		Message: "你成功了",
-		Data: map[string]string{
-			"cmd": "SendData",
-		},
-	}
 	//这个uid没有登录就要返回错误
 	if hasUid == false {
-		returnData.Code = 400
-		returnData.Message = "这个uid没有登录啊 这个是redis查的"
-		returnData.Data = map[string]string{
-			"cmd": "reLogin",
-		}
-		b, _ := json.Marshal(returnData)
-		err = conn.WriteMessage(websocket.TextMessage, b)
+		wb.Cmd = "reLogin"
+		err = conn.WriteJSON(wb)
 		_ = conn.Close()
+		return
+	}
+	//阻塞读取json
+	//设置超时等待
+	conn.SetReadDeadline(time.Now().Add(10 * time.Second))
+	err = conn.ReadJSON(wb)
+	if err != nil {
+		wb.Cmd = "reload"
+		if conn != nil {
+			conn.WriteJSON(wb)
+			conn.Close()
+		}
+		return
+	}
+	//验证session
+	if wb.Cmd != "Auth" {
+		wb.Cmd = "reAuth"
+		conn.WriteJSON(wb)
+		conn.Close()
+		return
+	}
+	sessionInterface, ok := wb.Body["session"]
+	if ok == false {
+		wb.Cmd = "ErrorSession"
+		wb.Body = map[string]interface{}{}
+		conn.WriteJSON(wb)
+		return
+	}
+	session := sessionInterface.(string)
+	hasUid, err = checkSession(session, uid)
+
+	if err != nil {
+		wb.Cmd = "reAuth"
+		conn.WriteJSON(wb)
 		return
 	}
 
@@ -55,12 +78,8 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 	ww.ClientMangerInstance.AddClient(uid, c)
 	go c.ReadData()
 	go c.WriteData()
-	b, err := json.Marshal(returnData)
-	err = conn.WriteMessage(websocket.TextMessage, b)
-	if err != nil {
-		http.NotFound(w, req)
-		return
-	}
+	wb.Cmd = "ok"
+	conn.WriteJSON(wb)
 }
 
 func CheckHasThisUid(uid int) (bool, error) {
@@ -75,5 +94,25 @@ func CheckHasThisUid(uid int) (bool, error) {
 		return false, nil
 	}
 	rec.Close()
+	return true, nil
+}
+
+func checkSession(session string, uid int) (bool, error) {
+	rec := redis.RedisPool.Get()
+	replay, err := rec.Do("HGET", session, "uid")
+	if err != nil {
+		return false, err
+	}
+	if replay == nil {
+		return false, nil
+	}
+	redisGetUidString := string([]byte(replay.([]uint8)))
+	redisGetUid, err := strconv.Atoi(redisGetUidString)
+	if err != nil {
+		return false, nil
+	}
+	if redisGetUid != uid {
+		return false, nil
+	}
 	return true, nil
 }

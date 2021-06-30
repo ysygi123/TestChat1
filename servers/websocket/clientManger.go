@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 )
 
@@ -64,14 +65,13 @@ func (this *ClientManger) GetManyClient(uids []int) (c []*Client, e error) {
 
 func (this *ClientManger) DelClient(uid int) {
 	this.RWLock.Lock()
-	c, ok := this.Clients[uid]
-	if !ok {
-		this.RWLock.Unlock()
-		return
-	}
-	close(c.MessageChannel)
+	defer this.RWLock.Unlock()
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println(r, "啊我去")
+		}
+	}()
 	delete(this.Clients, uid)
-	this.RWLock.Unlock()
 }
 
 func (this *ClientManger) LoopToKillChild() {
@@ -88,6 +88,7 @@ func (this *ClientManger) SetAuth(uid int) (err error) {
 		return
 	}
 	this.RWLock.Lock()
+
 	c.IsAuth = true
 	this.RWLock.Unlock()
 	return
