@@ -79,6 +79,7 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 	go c.ReadData()
 	go c.WriteData()
 	wb.Cmd = "ok"
+	wb.Body = nil
 	conn.WriteJSON(wb)
 }
 
