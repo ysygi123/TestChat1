@@ -67,15 +67,16 @@ func (this *GroupMessage) WebSocketRequest(msg *message.Message, uids []int) {
 //数据库操作
 func (this *GroupMessage) SetInDataBase(allUids []int, msg *message.Message) error {
 	tx, err := mysql.DB.Begin()
-	if err := this.InsertMessage(msg); err != nil {
+	if err != nil {
+		return err
+	}
+	if err := this.InsertMessage(msg, tx); err != nil {
 		return err
 	}
 	title := this.GetTitle(msg.MessageContent)
-	fmt.Println("查看群聊的title是什么 : ", title)
-	sqlsql := "update message_list set " +
-		"message_content=? and message_num=message_num+1 and update_time=? and is_del=1 where from_id=? and message_type=2 and uid in (" +
+	sqlsql := "update message_list set message_content='" + title + "',message_num=message_num+1,update_time=?,is_del=1 where from_id=? and message_type=2 and uid in (" +
 		common.IntJoin(allUids, len(allUids)) + ")"
-	_, err = mysql.DB.Query(sqlsql, title, uint64(time.Now().Unix()), msg.GroupId)
+	_, err = tx.Exec(sqlsql, uint64(time.Now().Unix()), msg.GroupId)
 	if err != nil {
 		return err
 	}

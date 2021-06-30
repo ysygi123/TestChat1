@@ -133,8 +133,8 @@ func (this *BaseMessage) GetTitle(longContent string) string {
 }
 
 //插入message表
-func (this *BaseMessage) InsertMessage(msg *message.Message) error {
-	res, err := mysql.DB.Exec(
+func (this *BaseMessage) InsertMessage(msg *message.Message, tx *sql.Tx) error {
+	res, err := tx.Exec(
 		"INSERT INTO `message`"+
 			"(`message_content`,`send_uid`,`receive_uid`,`created_time`,`message_type`,`group_id`) "+
 			"VALUES (?,?,?,?,?,?)", msg.MessageContent, msg.SendUid, msg.ReceiveUid, msg.CreatedTime, msg.MessageType, msg.GroupId)
@@ -152,7 +152,7 @@ func (this *BaseMessage) AddMessage(msg *message.Message) error {
 	//处理消息入库
 	tx, err := mysql.DB.Begin()
 	msg.CreatedTime = uint64(time.Now().Unix())
-	err = this.InsertMessage(msg)
+	err = this.InsertMessage(msg, tx)
 	if err != nil {
 		tx.Rollback()
 	}

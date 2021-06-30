@@ -76,7 +76,6 @@ func AddToGroupCommit(c *gin.Context) {
 	}
 	tx, err := mysql.DB.Begin()
 	if err != nil {
-		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
