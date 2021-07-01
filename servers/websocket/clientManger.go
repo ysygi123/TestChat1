@@ -93,3 +93,14 @@ func (this *ClientManger) SetAuth(uid int) (err error) {
 	this.RWLock.Unlock()
 	return
 }
+
+func (this *ClientManger) SetClientHeartBreath(uid int, timestamp uint64) bool {
+	this.RWLock.RLock()
+	defer this.RWLock.RUnlock()
+	c, ok := this.Clients[uid]
+	if !ok {
+		return false
+	}
+	c.SetHeartBreath(timestamp)
+	return true
+}

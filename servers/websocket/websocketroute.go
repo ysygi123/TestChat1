@@ -44,5 +44,6 @@ func (this *WebSocketRoute) GetHandler(cmd string) (h WebsocketFunc, err error) 
 }
 
 func (this *WebSocketRoute) AllRegisterRoute() {
-	this.RegisterRoute("sendMessage", SendMessageToOneUser)
+	this.RegisterRoute("SendMessage", SendMessageToOneUser)
+	this.RegisterRoute("HeartBreath", HeartBreath)
 }

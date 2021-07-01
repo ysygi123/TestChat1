@@ -35,11 +35,17 @@ func (this *BaseMessage) SelfPushMessage(msg *message.Message) error {
 	}
 	//发送消息到队列
 	rec := redis.RedisPool.Get()
-	defer rec.Close()
+	defer func() {
+		err := rec.Close()
+		if err != nil {
+			fmt.Println("查看一下为什么没关掉")
+		}
+	}()
 	_, err = rec.Do("LPUSH", "message_queue", jsonMessage)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

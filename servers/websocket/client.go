@@ -47,7 +47,6 @@ func (this *Client) ReadData() {
 		mesType, mesg, err := this.WebSocketConn.ReadMessage()
 		if err != nil {
 			this.HandleErrorData(err, mesType, "reload")
-			ClientMangerInstance.CloseChan <- this.Uid
 			break
 		}
 		this.handleData(mesType, mesg)
@@ -64,6 +63,9 @@ func (this *Client) WriteData() {
 	}()
 	//向manager的这个发送关闭信息
 	defer func() {
+		if this.WebSocketConn != nil {
+			this.WebSocketConn.Close()
+		}
 		ClientMangerInstance.CloseChan <- this.Uid
 	}()
 
@@ -121,5 +123,13 @@ func (this *Client) HandleErrorData(err error, mesType int, cmd string) {
 	s := common.GetNewWebSocketRequest(cmd)
 	s.Body["err"] = err.Error()
 	this.WebSocketConn.WriteMessage(mesType, common.GetJsonByteData(s))
-	ClientMangerInstance.CloseChan <- this.Uid
+	//错误操作不需要关闭当前连接
+	/*if this.WebSocketConn != nil {
+		this.WebSocketConn.Close()
+	}
+	ClientMangerInstance.CloseChan <- this.Uid*/
+}
+
+func (this *Client) SetHeartBreath(timestamp uint64) {
+	this.HeartBreath = timestamp
 }

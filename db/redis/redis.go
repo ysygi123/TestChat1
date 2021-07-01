@@ -18,7 +18,6 @@ func NewRedisDB() {
 			}
 			return
 		},
-		Wait: true,
 	}
 
 }

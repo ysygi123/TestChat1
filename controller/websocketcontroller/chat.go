@@ -29,8 +29,6 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 	}
 	uid, _ := strconv.Atoi(uidSlice[0])
 	wb := common.GetNewWebSocketRequest("")
-	wb.Cmd = "SendAuth"
-	conn.WriteJSON(wb)
 	hasUid, err := CheckHasThisUid(uid)
 	//这个uid没有登录就要返回错误
 	if hasUid == false {
@@ -39,9 +37,14 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 		_ = conn.Close()
 		return
 	}
+	//设置一个client
+	c := ww.NewClient(conn.RemoteAddr().String(), uid, uint64(time.Now().Unix()), conn)
+	ww.ClientMangerInstance.AddClient(uid, c)
+	wb.Cmd = "SendAuth"
+	conn.WriteJSON(wb)
 	//阻塞读取json
 	//设置超时等待
-	conn.SetReadDeadline(time.Now().Add(10 * time.Second))
+	//conn.SetReadDeadline(time.Now().Add(3 * time.Second))
 	err = conn.ReadJSON(wb)
 	if err != nil {
 		wb.Cmd = "reload"
@@ -54,8 +57,10 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 	//验证session
 	if wb.Cmd != "Auth" {
 		wb.Cmd = "reAuth"
+		wb.Body["msg"] = "好像不是auth"
 		conn.WriteJSON(wb)
 		conn.Close()
+		ww.ClientMangerInstance.CloseChan <- uid
 		return
 	}
 	sessionInterface, ok := wb.Body["session"]
@@ -63,6 +68,7 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 		wb.Cmd = "ErrorSession"
 		wb.Body = map[string]interface{}{}
 		conn.WriteJSON(wb)
+		ww.ClientMangerInstance.CloseChan <- uid
 		return
 	}
 	session := sessionInterface.(string)
@@ -70,17 +76,18 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 
 	if err != nil {
 		wb.Cmd = "reAuth"
+		wb.Body["msg"] = "这个是checksession之后错了" + err.Error()
 		conn.WriteJSON(wb)
+		ww.ClientMangerInstance.CloseChan <- uid
 		return
 	}
 
-	c := ww.NewClient(conn.RemoteAddr().String(), uid, uint64(time.Now().Unix()), conn)
-	ww.ClientMangerInstance.AddClient(uid, c)
-	go c.ReadData()
-	go c.WriteData()
 	wb.Cmd = "ok"
 	wb.Body = nil
 	conn.WriteJSON(wb)
+	//开两个协程分别用来读取这个client发来的操作和给这个client发去指令
+	go c.ReadData()
+	go c.WriteData()
 }
 
 func CheckHasThisUid(uid int) (bool, error) {
@@ -114,6 +121,10 @@ func checkSession(session string, uid int) (bool, error) {
 	}
 	if redisGetUid != uid {
 		return false, nil
+	}
+	err = ww.ClientMangerInstance.SetAuth(uid)
+	if err != nil {
+		return false, err
 	}
 	return true, nil
 }

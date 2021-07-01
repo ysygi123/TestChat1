@@ -46,7 +46,7 @@ func Login(c *gin.Context) {
 	//判断是否登录
 	replay, err := rec.Do("GET", "uidlogin:"+userData["uid"])
 	if err != nil {
-		common.ReturnResponse(c, 200, 400, "取出缓存错误", nil)
+		common.ReturnResponse(c, 200, 400, "取出缓存错误  "+err.Error(), nil)
 		return
 	}
 	if replay != nil {
@@ -76,13 +76,14 @@ func Login(c *gin.Context) {
 
 func LookClient(c *gin.Context) {
 	websocket.ClientMangerInstance.RWLock.RLock()
+	fmt.Printf("%+v\n", websocket.ClientMangerInstance.Clients)
 	for c, v := range websocket.ClientMangerInstance.Clients {
-		fmt.Println(c, v)
+		fmt.Println("啊哈哈哈", c, v)
 	}
 	websocket.ClientMangerInstance.RWLock.RUnlock()
 }
 
-//修改client的字段 后续要改成用redis队列丢进去修改将websocket和web拆开
+//修改client的字段 后续要改成用redis队列丢进去修改将websocket和web拆开 作废
 func AuthClient(c *gin.Context) {
 	authParams := uservalidate.Auth{}
 	err := common.AutoValidate(c, &authParams)

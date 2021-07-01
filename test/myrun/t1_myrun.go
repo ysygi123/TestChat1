@@ -10,7 +10,7 @@ import (
 
 func main() {
 	fatherWG := new(sync.WaitGroup)
-	for j := 1; j < 3; j++ {
+	for j := 1; j < 100; j++ {
 		fatherWG.Add(1)
 		go imitate(j, fatherWG)
 	}
@@ -46,26 +46,27 @@ func imitate(uid int, fatherWG *sync.WaitGroup) {
 	}
 	msg := make([]byte, 1024)
 	_, err = ws.Read(msg)
-	fmt.Println("这个是收到的消息哇", string(msg))
-	//验证了
-	authUrl := prefixHttpUrl + "/user/AuthClient"
-	requestBody = fmt.Sprintf(`{"uid":%d,"session":"%s"}`, uid, session)
-	authReturnMap := testTool.MyselfPostRequest(authUrl, requestBody, map[string]string{"session": session})
-	authReturnCode := int(authReturnMap["code"].(float64))
-	if authReturnCode != 200 {
-		fmt.Println("错了验证")
-		return
-	}
-
+	//验证
+	sendStr := fmt.Sprintf(`{"cmd":"Auth","body":{"session":"%s"}}`, session)
+	n, err := ws.Write([]byte(sendStr))
+	fmt.Println("查看", n, err)
+	_, err = ws.Read(msg)
+	fmt.Println("查看验证完的数据是什么", string(msg), "看看发送的数据是什么", sendStr)
 	wg := new(sync.WaitGroup)
+	go func() {
+		for {
+			_, _ = ws.Write([]byte(fmt.Sprintf(`{"cmd":"HeartBreath"}`)))
+			time.Sleep(time.Second * 60)
+		}
+	}()
 	for num := 0; num < 500; num++ {
 		wg.Add(1)
 		go func() {
 			groupChatUrl := prefixHttpUrl + "/message/SendMessage"
 			requestBody = fmt.Sprintf(`{"send_uid":%d,"group_id":1,"message_content":"你好我叫%d当前时间是%d","message_type":2}`,
 				uid, uid, time.Now().UnixNano()/1e6)
-			res := testTool.MyselfPostRequest(groupChatUrl, requestBody, map[string]string{"session": session})
-			fmt.Println("查看发送聊天消息的结果是什么 : ", res)
+			_ = testTool.MyselfPostRequest(groupChatUrl, requestBody, map[string]string{"session": session})
+			//fmt.Println("查看发送聊天消息的结果是什么 : ", res)
 			wg.Done()
 		}()
 	}
@@ -74,6 +75,7 @@ func imitate(uid int, fatherWG *sync.WaitGroup) {
 		_, err := ws.Read(msg)
 		i++
 		if err != nil {
+			fmt.Println(err)
 			break
 		}
 		fmt.Println("我是uid : ", uid, "我收到的消息是 : ", string(msg), i)

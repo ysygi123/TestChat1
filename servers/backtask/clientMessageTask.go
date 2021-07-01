@@ -58,6 +58,6 @@ func CleanClient() {
 	for {
 		c := <-websocket.ClientMangerInstance.CloseChan
 		websocket.ClientMangerInstance.DelClient(c)
-		fmt.Println("删除了 : ", c, "现在的map", websocket.ClientMangerInstance.Clients)
+		fmt.Println("我删除了", c)
 	}
 }

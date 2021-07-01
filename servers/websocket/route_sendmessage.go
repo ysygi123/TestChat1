@@ -3,6 +3,7 @@ package websocket
 import (
 	"TestChat1/common"
 	"github.com/gorilla/websocket"
+	"time"
 )
 
 //私法消息
@@ -24,4 +25,9 @@ func SendMessageToOneUser(client *Client, message *map[string]interface{}) {
 	wsq.Body["message"] = (*message)["message"]
 
 	otherC.WebSocketConn.WriteMessage(websocket.TextMessage, common.GetJsonByteData(wsq))
+}
+
+func HeartBreath(client *Client, message *map[string]interface{}) {
+	t := uint64(time.Now().Unix())
+	ClientMangerInstance.SetClientHeartBreath(client.Uid, t)
 }
