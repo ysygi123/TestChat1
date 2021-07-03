@@ -4,6 +4,7 @@ import (
 	"TestChat1/common"
 	"TestChat1/db/mysql"
 	"TestChat1/model/message"
+	"TestChat1/vaildate/messagevalidate"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -31,4 +32,51 @@ func GetMessageList(c *gin.Context) {
 		messageList = append(messageList, tmp)
 	}
 	common.ReturnResponse(c, 200, 200, "success", messageList)
+}
+
+//获取普通私聊
+func GetSelfChat(c *gin.Context) {
+	gscv := &messagevalidate.GetSelfChatValidate{}
+	err := common.AutoValidate(c, gscv)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+	rows, err := mysql.DB.Query("select * from message where message_type=1 and "+
+		"((receive_uid=? and send_uid=?) or "+
+		"(receive_uid=? and send_uid=?)) created_time between ? and ?",
+		gscv.ReceiveUid, gscv.SendUid, gscv.SendUid, gscv.ReceiveUid, gscv.StartTime, gscv.EndTime)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+	returnMessage, err := mysql.GetManyRows(rows)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+	common.ReturnResponse(c, 200, 200, "success", returnMessage)
+}
+
+//群消息
+func GetGroupChat(c *gin.Context) {
+	ggcv := &messagevalidate.GetGroupChatValidate{}
+	err := common.AutoValidate(c, ggcv)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+
+	rows, err := mysql.DB.Query("select * from message where message_type=2 and "+
+		"group_id=? created_time between ? and ?", ggcv.GroupId, ggcv.StartTime, ggcv.EndTime)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+	returnMessage, err := mysql.GetManyRows(rows)
+	if err != nil {
+		common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		return
+	}
+	common.ReturnResponse(c, 200, 200, "success", returnMessage)
 }
