@@ -7,9 +7,11 @@ import (
 
 var GoRedisCluster *redis.ClusterClient
 
+var IP string = "192.168.3.36"
+
 func init() {
 	GoRedisCluster = redis.NewClusterClient(&redis.ClusterOptions{
-		Addrs:        []string{},
+		Addrs:        []string{IP + ":6382", IP + ":6381", IP + ":6380"},
 		Password:     "",
 		MaxRedirects: 8, // 当遇到网络错误或者MOVED/ASK重定向命令时，最多重试几次，默认8
 

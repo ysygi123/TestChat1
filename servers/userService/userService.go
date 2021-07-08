@@ -115,24 +115,24 @@ func Login(loginStruct *uservalidate.LoginValidate) (map[string]string, error) {
 	}
 	//获取session
 	session := common.GetSession(loginStruct.Username)
-	rec := redis.RedisPool.Get()
-	defer rec.Close()
+
 	//判断是否登录
-	replay, err := rec.Do("GET", "uidlogin:"+userData["uid"])
+
+	replay, err := redis.GoRedisCluster.Get("uidlogin:" + userData["uid"]).Result()
 	if err != nil {
 		return nil, err
 	}
-	if replay != nil {
+	if replay != "" {
 		err := errors.New("已经登陆")
 		return nil, err
 	}
 	//设置基础信息
-	_, err = rec.Do("HMSET", session, "uid", userData["uid"], "username", userData["username"])
+	_, err = redis.GoRedisCluster.HMSet(session, map[string]interface{}{"uid": userData["uid"], "username": userData["username"]}).Result()
 	if err != nil {
 		return nil, err
 	}
 	//设置是否登录
-	_, err = rec.Do("SET", "uidlogin:"+userData["uid"], uint64(time.Now().Unix()))
+	_, err = redis.GoRedisCluster.Set("uidlogin:"+userData["uid"], uint64(time.Now().Unix()), 0).Result()
 	if err != nil {
 		return nil, err
 	}

@@ -68,21 +68,18 @@ func AuthClient(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
-	rec := redis.RedisPool.Get()
-	defer rec.Close()
-	reply, err := rec.Do("HGET", authParams.Session, "uid")
+	uidStr, err := redis.GoRedisCluster.HGet(authParams.Session, "uid").Result()
 	if err != nil {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
-	if reply == nil {
+	if uidStr == "" {
 		common.ReturnResponse(c, 200, 400, "未知错误", nil)
 		return
 	}
-	uidStr := string(reply.([]byte))
 	uid, _ := strconv.Atoi(uidStr)
 	if uid != authParams.Uid {
-		common.ReturnResponse(c, 200, 400, "去你妈的吧 uid不对等", nil)
+		common.ReturnResponse(c, 200, 400, " uid不对等", nil)
 		return
 	}
 	err = websocket.ClientMangerInstance.SetAuth(uid)
@@ -101,8 +98,6 @@ func AddFriendRequest(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
-	rec := redis.RedisPool.Get()
-	defer rec.Close()
 	msg := &message.Message{
 		MessageType:    uint8(3),
 		SendUid:        userAddRequest.SendUid,
@@ -115,7 +110,8 @@ func AddFriendRequest(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 	}
 	jsonStr, err := json.Marshal(msg)
-	_, err = rec.Do("LPUSH", "message_queue", jsonStr)
+	_, err = redis.GoRedisCluster.LPush("message_queue", jsonStr).Result()
+	//_, err = rec.Do("LPUSH", "message_queue", jsonStr)
 	if err != nil {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return

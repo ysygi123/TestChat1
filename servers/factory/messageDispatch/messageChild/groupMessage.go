@@ -104,21 +104,14 @@ func (this *GroupMessage) getThisGroupUserIds(groupId int) ([]int, error) {
 
 //获取群里已经登录的uid
 func (this *GroupMessage) getIsLoginUids(uids []int) []int {
-	strKeys := make([]interface{}, 0)
-	for _, uid := range uids {
-		strKeys = append(strKeys, "uidlogin:"+strconv.Itoa(uid))
-	}
-	rec := redis.RedisPool.Get()
-	defer rec.Close()
-	replay, err := rec.Do("MGET", strKeys...)
-	if err != nil {
-		return nil
-	}
 	returnInt := make([]int, 0)
-	re := replay.([]interface{})
-	for i, v := range re {
-		if v != nil {
-			returnInt = append(returnInt, uids[i])
+	for _, uid := range uids {
+		replay, err := redis.GoRedisCluster.Get("uidlogin:" + strconv.Itoa(uid)).Result()
+		if err != nil {
+			continue
+		}
+		if replay != "" {
+			returnInt = append(returnInt, uid)
 		}
 	}
 	return returnInt

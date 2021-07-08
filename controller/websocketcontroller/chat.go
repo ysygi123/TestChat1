@@ -91,30 +91,27 @@ func FirstPage(w http.ResponseWriter, req *http.Request) {
 }
 
 func CheckHasThisUid(uid int) (bool, error) {
-	rec := redis.RedisPool.Get()
-	replay, err := rec.Do("GET", "uidlogin:"+strconv.Itoa(uid))
+
+	replay, err := redis.GoRedisCluster.Get("uidlogin:" + strconv.Itoa(uid)).Result()
 	if err != nil {
-		rec.Close()
 		return false, err
 	}
-	if replay == nil {
-		rec.Close()
+	if replay == "" {
 		return false, nil
 	}
-	rec.Close()
 	return true, nil
 }
 
 func checkSession(session string, uid int) (bool, error) {
-	rec := redis.RedisPool.Get()
-	replay, err := rec.Do("HGET", session, "uid")
+
+	redisGetUidString, err := redis.GoRedisCluster.HGet(session, "uid").Result()
+
 	if err != nil {
 		return false, err
 	}
-	if replay == nil {
+	if redisGetUidString == "" {
 		return false, nil
 	}
-	redisGetUidString := string([]byte(replay.([]uint8)))
 	redisGetUid, err := strconv.Atoi(redisGetUidString)
 	if err != nil {
 		return false, nil

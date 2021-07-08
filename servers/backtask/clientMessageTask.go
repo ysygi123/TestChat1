@@ -21,16 +21,14 @@ func TaskConsumeMessage() {
 	for i := 0; i < 6; i++ {
 		wg.Add(1)
 		go func(wg *sync.WaitGroup) {
-			rec := redis.RedisPool.Get()
-			defer rec.Close()
 			for {
-				reply, err := rec.Do("BRPOP", "message_queue", 0)
+				reply, err := redis.GoRedisCluster.BRPop(0, "message_queue").Result()
 				if err != nil {
 					fmt.Println("clientManager line 84: ", err)
 					continue
 				}
 				msg := new(message.Message)
-				err = json.Unmarshal(reply.([]interface{})[1].([]byte), msg)
+				err = json.Unmarshal([]byte(reply[1]), msg)
 				if err != nil {
 					fmt.Println("clientManager line 90: ", err)
 					continue
