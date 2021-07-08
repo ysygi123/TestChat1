@@ -85,7 +85,11 @@ func Register(regVal *uservalidate.RegisterValidate) error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(sqlsql, regVal.Username, common.GetMD5Data(regVal.Passwd), getUid())
+	uid, err := getUid()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(sqlsql, regVal.Username, common.GetMD5Data(regVal.Passwd), uid)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -119,9 +123,6 @@ func Login(loginStruct *uservalidate.LoginValidate) (map[string]string, error) {
 	//判断是否登录
 
 	replay, err := redis.GoRedisCluster.Get("uidlogin:" + userData["uid"]).Result()
-	if err != nil {
-		return nil, err
-	}
 	if replay != "" {
 		err := errors.New("已经登陆")
 		return nil, err
@@ -141,6 +142,7 @@ func Login(loginStruct *uservalidate.LoginValidate) (map[string]string, error) {
 }
 
 //返回uid
-func getUid() int {
-	return 0
+func getUid() (int, error) {
+	i, err := redis.GoRedisCluster.Incr("uid_disptach").Result()
+	return int(i), err
 }

@@ -10,8 +10,8 @@ func AuthSession() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := c.GetHeader("session")
 		res, err := redis.GoRedisCluster.HGet(session, "uid").Result()
-		if err != nil {
-			common.ReturnResponse(c, 200, 400, err.Error(), nil)
+		if err != nil && err.Error() != "redis: nil" {
+			common.ReturnResponse(c, 200, 373, err.Error(), nil)
 			c.Abort()
 			return
 		}
