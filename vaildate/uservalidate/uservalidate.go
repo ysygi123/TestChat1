@@ -21,6 +21,11 @@ type AddFriendCommit struct {
 	MessageId int `json:"message_id" binding:"required"`
 }
 
+type RegisterValidate struct {
+	Username string `json:"username" binding:"required"`
+	Passwd   string `json:"passwd" binding:"required"`
+}
+
 func (r *LoginValidate) GetError() {
 
 }
