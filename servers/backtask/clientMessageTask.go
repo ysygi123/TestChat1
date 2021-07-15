@@ -10,11 +10,6 @@ import (
 	"sync"
 )
 
-func AllBackTask() {
-	go TaskConsumeMessage()
-	go CleanClient()
-}
-
 //后台任务消费消息
 func TaskConsumeMessage() {
 	wg := new(sync.WaitGroup)
@@ -52,6 +47,7 @@ func TaskConsumeMessage() {
 	wg.Done()
 }
 
+//接收删除客户fd的请求
 func CleanClient() {
 	for {
 		c := <-websocket.ClientMangerInstance.CloseChan
