@@ -146,3 +146,20 @@ func getUid() (int, error) {
 	i, err := redis.GoRedisCluster.Incr("uid_disptach").Result()
 	return int(i), err
 }
+
+//退出登录
+func LogOut(uid int, session string) (bool, error) {
+	uidStr, err := redis.GoRedisCluster.HGet(session, "uid").Result()
+	if err != nil {
+		return false, err
+	}
+	if uidStr != strconv.Itoa(uid) {
+		return false, errors.New("不是这个用户")
+	}
+
+	_, err = redis.GoRedisCluster.Del(session, uidStr).Result()
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
