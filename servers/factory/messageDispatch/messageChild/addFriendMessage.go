@@ -51,8 +51,8 @@ func (this *AddFriendMessage) AddMessage(msg *message.Message) error {
 	//err有错 就认为是这条位空
 	if err != nil {
 		msg.ChatId = idDispatch.SnowFlakeWorker.GetId()
-		_, err := tx.Exec("insert into message_list (uid,message_content,message_type,created_time,update_time,message_num, chat_id) values (?,?,3,?,?,1,?)",
-			msg.ReceiveUid, msg.MessageContent, msg.CreatedTime, msg.CreatedTime, msg.ChatId)
+		_, err := tx.Exec("insert into message_list (uid,from_id,message_content,message_type,created_time,update_time,message_num, chat_id) values (?,?,?,3,?,?,1,?)",
+			msg.ReceiveUid, msg.SendUid, msg.MessageContent, msg.CreatedTime, msg.CreatedTime, msg.ChatId)
 		if err != nil {
 			tx.Rollback()
 			return err
