@@ -7,6 +7,7 @@ import (
 	"TestChat1/servers/userService"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -60,7 +61,7 @@ func (this *AddFriendMessage) AddMessage(msg *message.Message) error {
 		msg.ChatId = chatId
 		_, err := tx.Exec("update message_list set update_time,message_num=message_num+1,is_del=1 where uid=? and message_type=3 limit 1", msg.ReceiveUid)
 		if err != nil {
-			tx.Exec("rollback")
+			tx.Rollback()
 			return err
 		}
 	}
@@ -68,9 +69,10 @@ func (this *AddFriendMessage) AddMessage(msg *message.Message) error {
 	err = this.InsertMessage(msg, tx)
 	if err != nil {
 		tx.Rollback()
+		fmt.Println(err)
 		return nil
 	}
-
+	tx.Commit()
 	//即时发送消息
 	go this.WebSocketRequest(msg)
 	return nil
