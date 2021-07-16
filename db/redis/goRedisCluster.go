@@ -7,7 +7,7 @@ import (
 
 var GoRedisCluster *redis.ClusterClient
 
-var IP string = "192.168.3.36"
+var IP string = "127.0.0.1"
 
 func init() {
 	GoRedisCluster = redis.NewClusterClient(&redis.ClusterOptions{

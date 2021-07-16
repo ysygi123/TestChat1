@@ -615,8 +615,6 @@ CREATE TABLE IF NOT EXISTS `message_list` (
 -- 正在导出表  testchat1.message_list 的数据：~0 rows (大约)
 DELETE FROM `message_list`;
 /*!40000 ALTER TABLE `message_list` DISABLE KEYS */;
-INSERT INTO `message_list` (`id`, `uid`, `from_id`, `message_content`, `message_type`, `created_time`, `update_time`, `message_num`, `is_del`, `chat_id`) VALUES
-	(1, 0, 0, '', 0, 0, 0, 0, 1, 1123);
 /*!40000 ALTER TABLE `message_list` ENABLE KEYS */;
 
 -- 导出  表 testchat1.user 结构
@@ -1130,176 +1128,6 @@ INSERT INTO `user` (`uid`, `username`, `rname`, `mobile`, `passwd`, `created_tim
 	(491, '500', '500', '500', 'cee631121c2ec9232f3a2f028ad5c89b', 1625036325, 1625036325);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 
--- 导出  表 testchat1.userlogin_0 结构
-DROP TABLE IF EXISTS `userlogin_0`;
-CREATE TABLE IF NOT EXISTS `userlogin_0` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
-	`uid` INT(11) NOT NULL,
-	PRIMARY KEY (`id`) USING BTREE,
-	UNIQUE INDEX `username` (`username`) USING BTREE,
-	UNIQUE INDEX `uid` (`uid`) USING BTREE
-);
-
--- 正在导出表  testchat1.userlogin_0 的数据：~0 rows (大约)
-DELETE FROM `userlogin_0`;
-/*!40000 ALTER TABLE `userlogin_0` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userlogin_0` ENABLE KEYS */;
-
--- 导出  表 testchat1.userlogin_1 结构
-DROP TABLE IF EXISTS `userlogin_1`;
-CREATE TABLE IF NOT EXISTS `userlogin_1` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
-	`uid` INT(11) NOT NULL,
-	PRIMARY KEY (`id`) USING BTREE,
-	UNIQUE INDEX `username` (`username`) USING BTREE,
-	UNIQUE INDEX `uid` (`uid`) USING BTREE
-);
-
--- 正在导出表  testchat1.userlogin_1 的数据：~0 rows (大约)
-DELETE FROM `userlogin_1`;
-/*!40000 ALTER TABLE `userlogin_1` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userlogin_1` ENABLE KEYS */;
-
--- 导出  表 testchat1.userlogin_2 结构
-DROP TABLE IF EXISTS `userlogin_2`;
-CREATE TABLE IF NOT EXISTS `userlogin_2` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
-	`uid` INT(11) NOT NULL,
-	PRIMARY KEY (`id`) USING BTREE,
-	UNIQUE INDEX `username` (`username`) USING BTREE,
-	UNIQUE INDEX `uid` (`uid`) USING BTREE
-);
-
--- 正在导出表  testchat1.userlogin_2 的数据：~0 rows (大约)
-DELETE FROM `userlogin_2`;
-/*!40000 ALTER TABLE `userlogin_2` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userlogin_2` ENABLE KEYS */;
-
--- 导出  表 testchat1.userlogin_3 结构
-DROP TABLE IF EXISTS `userlogin_3`;
-CREATE TABLE IF NOT EXISTS `userlogin_3` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
-	`uid` INT(11) NOT NULL,
-	PRIMARY KEY (`id`) USING BTREE,
-	UNIQUE INDEX `username` (`username`) USING BTREE,
-	UNIQUE INDEX `uid` (`uid`) USING BTREE
-);
-
--- 正在导出表  testchat1.userlogin_3 的数据：~0 rows (大约)
-DELETE FROM `userlogin_3`;
-/*!40000 ALTER TABLE `userlogin_3` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userlogin_3` ENABLE KEYS */;
-
--- 导出  表 testchat1.userlogin_4 结构
-DROP TABLE IF EXISTS `userlogin_4`;
-CREATE TABLE IF NOT EXISTS `userlogin_4` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
-	`uid` INT(11) NOT NULL,
-	PRIMARY KEY (`id`) USING BTREE,
-	UNIQUE INDEX `username` (`username`) USING BTREE,
-	UNIQUE INDEX `uid` (`uid`) USING BTREE
-);
-
--- 正在导出表  testchat1.userlogin_4 的数据：~0 rows (大约)
-DELETE FROM `userlogin_4`;
-/*!40000 ALTER TABLE `userlogin_4` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userlogin_4` ENABLE KEYS */;
-
--- 导出  表 testchat1.userlogin_5 结构
-DROP TABLE IF EXISTS `userlogin_5`;
-CREATE TABLE IF NOT EXISTS `userlogin_5` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
-	`uid` INT(11) NOT NULL,
-	PRIMARY KEY (`id`) USING BTREE,
-	UNIQUE INDEX `username` (`username`) USING BTREE,
-	UNIQUE INDEX `uid` (`uid`) USING BTREE
-);
-
--- 正在导出表  testchat1.userlogin_5 的数据：~0 rows (大约)
-DELETE FROM `userlogin_5`;
-/*!40000 ALTER TABLE `userlogin_5` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userlogin_5` ENABLE KEYS */;
-
--- 导出  表 testchat1.userlogin_6 结构
-DROP TABLE IF EXISTS `userlogin_6`;
-CREATE TABLE IF NOT EXISTS `userlogin_6` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
-	`uid` INT(11) NOT NULL,
-	PRIMARY KEY (`id`) USING BTREE,
-	UNIQUE INDEX `username` (`username`) USING BTREE,
-	UNIQUE INDEX `uid` (`uid`) USING BTREE
-);
-
--- 正在导出表  testchat1.userlogin_6 的数据：~0 rows (大约)
-DELETE FROM `userlogin_6`;
-/*!40000 ALTER TABLE `userlogin_6` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userlogin_6` ENABLE KEYS */;
-
--- 导出  表 testchat1.userlogin_7 结构
-DROP TABLE IF EXISTS `userlogin_7`;
-CREATE TABLE IF NOT EXISTS `userlogin_7` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
-	`uid` INT(11) NOT NULL,
-	PRIMARY KEY (`id`) USING BTREE,
-	UNIQUE INDEX `username` (`username`) USING BTREE,
-	UNIQUE INDEX `uid` (`uid`) USING BTREE
-);
-
--- 正在导出表  testchat1.userlogin_7 的数据：~0 rows (大约)
-DELETE FROM `userlogin_7`;
-/*!40000 ALTER TABLE `userlogin_7` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userlogin_7` ENABLE KEYS */;
-
--- 导出  表 testchat1.userlogin_8 结构
-DROP TABLE IF EXISTS `userlogin_8`;
-CREATE TABLE IF NOT EXISTS `userlogin_8` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
-	`uid` INT(11) NOT NULL,
-	PRIMARY KEY (`id`) USING BTREE,
-	UNIQUE INDEX `username` (`username`) USING BTREE,
-	UNIQUE INDEX `uid` (`uid`) USING BTREE
-);
-
--- 正在导出表  testchat1.userlogin_8 的数据：~0 rows (大约)
-DELETE FROM `userlogin_8`;
-/*!40000 ALTER TABLE `userlogin_8` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userlogin_8` ENABLE KEYS */;
-
--- 导出  表 testchat1.userlogin_9 结构
-DROP TABLE IF EXISTS `userlogin_9`;
-CREATE TABLE IF NOT EXISTS `userlogin_9` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
-	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
-	`uid` INT(11) NOT NULL,
-	PRIMARY KEY (`id`) USING BTREE,
-	UNIQUE INDEX `username` (`username`) USING BTREE,
-	UNIQUE INDEX `uid` (`uid`) USING BTREE
-);
-
--- 正在导出表  testchat1.userlogin_9 的数据：~0 rows (大约)
-DELETE FROM `userlogin_9`;
-/*!40000 ALTER TABLE `userlogin_9` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userlogin_9` ENABLE KEYS */;
-
 -- 导出  表 testchat1.user_add_friend_request 结构
 DROP TABLE IF EXISTS `user_add_friend_request`;
 CREATE TABLE IF NOT EXISTS `user_add_friend_request` (
@@ -1336,10 +1164,181 @@ CREATE TABLE IF NOT EXISTS `user_friends` (
 -- 正在导出表  testchat1.user_friends 的数据：~2 rows (大约)
 DELETE FROM `user_friends`;
 /*!40000 ALTER TABLE `user_friends` DISABLE KEYS */;
-INSERT INTO `user_friends` (`id`, `uid`, `friend_uid`, `created_time`, `update_time`, `is_del`) VALUES
-	(1, 1, 2, 1624777649, 1624777649, 1),
-	(2, 2, 1, 1624777649, 1624777649, 1);
 /*!40000 ALTER TABLE `user_friends` ENABLE KEYS */;
+
+-- 导出  表 testchat1.user_login_0 结构
+DROP TABLE IF EXISTS `user_login_0`;
+CREATE TABLE IF NOT EXISTS `user_login_0` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
+	`uid` INT(11) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `username` (`username`) USING BTREE,
+	UNIQUE INDEX `uid` (`uid`) USING BTREE
+);
+
+-- 正在导出表  testchat1.user_login_0 的数据：~0 rows (大约)
+DELETE FROM `user_login_0`;
+/*!40000 ALTER TABLE `user_login_0` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_login_0` ENABLE KEYS */;
+
+-- 导出  表 testchat1.user_login_1 结构
+DROP TABLE IF EXISTS `user_login_1`;
+CREATE TABLE IF NOT EXISTS `user_login_1` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
+	`uid` INT(11) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `username` (`username`) USING BTREE,
+	UNIQUE INDEX `uid` (`uid`) USING BTREE
+);
+
+-- 正在导出表  testchat1.user_login_1 的数据：~0 rows (大约)
+DELETE FROM `user_login_1`;
+/*!40000 ALTER TABLE `user_login_1` DISABLE KEYS */;
+INSERT INTO `user_login_1` (`id`, `username`, `passwd`, `uid`) VALUES
+	(1, '10', 'd3d9446802a44259755d38e6d163e820', 1);
+/*!40000 ALTER TABLE `user_login_1` ENABLE KEYS */;
+
+-- 导出  表 testchat1.user_login_2 结构
+DROP TABLE IF EXISTS `user_login_2`;
+CREATE TABLE IF NOT EXISTS `user_login_2` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
+	`uid` INT(11) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `username` (`username`) USING BTREE,
+	UNIQUE INDEX `uid` (`uid`) USING BTREE
+);
+
+-- 正在导出表  testchat1.user_login_2 的数据：~0 rows (大约)
+DELETE FROM `user_login_2`;
+/*!40000 ALTER TABLE `user_login_2` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_login_2` ENABLE KEYS */;
+
+-- 导出  表 testchat1.user_login_3 结构
+DROP TABLE IF EXISTS `user_login_3`;
+CREATE TABLE IF NOT EXISTS `user_login_3` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
+	`uid` INT(11) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `username` (`username`) USING BTREE,
+	UNIQUE INDEX `uid` (`uid`) USING BTREE
+);
+
+-- 正在导出表  testchat1.user_login_3 的数据：~0 rows (大约)
+DELETE FROM `user_login_3`;
+/*!40000 ALTER TABLE `user_login_3` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_login_3` ENABLE KEYS */;
+
+-- 导出  表 testchat1.user_login_4 结构
+DROP TABLE IF EXISTS `user_login_4`;
+CREATE TABLE IF NOT EXISTS `user_login_4` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
+	`uid` INT(11) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `username` (`username`) USING BTREE,
+	UNIQUE INDEX `uid` (`uid`) USING BTREE
+);
+
+-- 正在导出表  testchat1.user_login_4 的数据：~0 rows (大约)
+DELETE FROM `user_login_4`;
+/*!40000 ALTER TABLE `user_login_4` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_login_4` ENABLE KEYS */;
+
+-- 导出  表 testchat1.user_login_5 结构
+DROP TABLE IF EXISTS `user_login_5`;
+CREATE TABLE IF NOT EXISTS `user_login_5` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
+	`uid` INT(11) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `username` (`username`) USING BTREE,
+	UNIQUE INDEX `uid` (`uid`) USING BTREE
+);
+
+-- 正在导出表  testchat1.user_login_5 的数据：~0 rows (大约)
+DELETE FROM `user_login_5`;
+/*!40000 ALTER TABLE `user_login_5` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_login_5` ENABLE KEYS */;
+
+-- 导出  表 testchat1.user_login_6 结构
+DROP TABLE IF EXISTS `user_login_6`;
+CREATE TABLE IF NOT EXISTS `user_login_6` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
+	`uid` INT(11) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `username` (`username`) USING BTREE,
+	UNIQUE INDEX `uid` (`uid`) USING BTREE
+);
+
+-- 正在导出表  testchat1.user_login_6 的数据：~0 rows (大约)
+DELETE FROM `user_login_6`;
+/*!40000 ALTER TABLE `user_login_6` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_login_6` ENABLE KEYS */;
+
+-- 导出  表 testchat1.user_login_7 结构
+DROP TABLE IF EXISTS `user_login_7`;
+CREATE TABLE IF NOT EXISTS `user_login_7` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
+	`uid` INT(11) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `username` (`username`) USING BTREE,
+	UNIQUE INDEX `uid` (`uid`) USING BTREE
+);
+
+-- 正在导出表  testchat1.user_login_7 的数据：~0 rows (大约)
+DELETE FROM `user_login_7`;
+/*!40000 ALTER TABLE `user_login_7` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_login_7` ENABLE KEYS */;
+
+-- 导出  表 testchat1.user_login_8 结构
+DROP TABLE IF EXISTS `user_login_8`;
+CREATE TABLE IF NOT EXISTS `user_login_8` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
+	`uid` INT(11) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `username` (`username`) USING BTREE,
+	UNIQUE INDEX `uid` (`uid`) USING BTREE
+);
+
+-- 正在导出表  testchat1.user_login_8 的数据：~0 rows (大约)
+DELETE FROM `user_login_8`;
+/*!40000 ALTER TABLE `user_login_8` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_login_8` ENABLE KEYS */;
+
+-- 导出  表 testchat1.user_login_9 结构
+DROP TABLE IF EXISTS `user_login_9`;
+CREATE TABLE IF NOT EXISTS `user_login_9` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`username` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',
+	`passwd` CHAR(32) NOT NULL COLLATE 'utf8_general_ci',
+	`uid` INT(11) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE,
+	UNIQUE INDEX `username` (`username`) USING BTREE,
+	UNIQUE INDEX `uid` (`uid`) USING BTREE
+);
+
+-- 正在导出表  testchat1.user_login_9 的数据：~0 rows (大约)
+DELETE FROM `user_login_9`;
+/*!40000 ALTER TABLE `user_login_9` DISABLE KEYS */;
+INSERT INTO `user_login_9` (`id`, `username`, `passwd`, `uid`) VALUES
+	(1, '11', '6512bd43d9caa6e02c990b0a82652dca', 2);
+/*!40000 ALTER TABLE `user_login_9` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
