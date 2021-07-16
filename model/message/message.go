@@ -12,9 +12,10 @@ type Message struct {
 	Id             int    `db:"id" json:"id"`
 	SendUid        int    `db:"send_uid" json:"send_uid"`
 	ReceiveUid     int    `db:"receive_uid" json:"receive_uid"`
-	CreatedTime    uint64 `db:"created_time" json:"created_time"`
-	MessageContent string `db:"message_content" json:"message_content"`
 	GroupId        int    `db:"group_id" json:"group_id"`
+	CreatedTime    uint64 `db:"created_time" json:"created_time"`
+	ChatId         uint64 `db:"chat_id" json:"chat_id"`
+	MessageContent string `db:"message_content" json:"message_content"`
 }
 
 type MessageList struct {
@@ -26,6 +27,6 @@ type MessageList struct {
 	FromId         int    `db:"from_id" json:"from_id"`
 	CreatedTime    uint64 `db:"created_time" json:"created_time"`
 	UpdateTime     uint64 `db:"update_time" json:"update_time"`
+	ChatId         uint64 `db:"chat_id" json:"chat_id"`
 	MessageContent string `db:"message_content" json:"message_content"`
-	MessageId      int    `db:"message_id" json:"message_id"`
 }

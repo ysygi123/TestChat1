@@ -16,7 +16,7 @@ func GetMessageList(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, "id错误", nil)
 		return
 	}
-	rows, err := mysql.DB.Query("SELECT `id`,`from_id`,`message_content`,`message_type`,`created_time`,`update_time`,`message_num`,`message_id` FROM `message_list` WHERE `uid`=? AND `is_del`=1", uid)
+	rows, err := mysql.DB.Query("SELECT `id`,`from_id`,`message_content`,`message_type`,`created_time`,`update_time`,`message_num` FROM `message_list` WHERE `uid`=? AND `is_del`=1", uid)
 	if err != nil {
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
@@ -24,7 +24,7 @@ func GetMessageList(c *gin.Context) {
 	var messageList []message.MessageList
 	var tmp message.MessageList
 	for rows.Next() {
-		err := rows.Scan(&tmp.Id, &tmp.FromId, &tmp.MessageContent, &tmp.MessageType, &tmp.CreatedTime, &tmp.UpdateTime, &tmp.MessageNum, &tmp.MessageId)
+		err := rows.Scan(&tmp.Id, &tmp.FromId, &tmp.MessageContent, &tmp.MessageType, &tmp.CreatedTime, &tmp.UpdateTime, &tmp.MessageNum)
 		if err != nil {
 			common.ReturnResponse(c, 200, 400, err.Error(), nil)
 			return

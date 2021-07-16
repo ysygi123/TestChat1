@@ -6,6 +6,7 @@ import (
 	"TestChat1/db/redis"
 	"TestChat1/model/message"
 	"TestChat1/model/user"
+	"TestChat1/servers/idDispatch"
 	"TestChat1/servers/userService"
 	"TestChat1/servers/websocket"
 	"TestChat1/vaildate/uservalidate"
@@ -150,15 +151,20 @@ func AddFriendCommit(c *gin.Context) {
 		common.ReturnResponse(c, 200, 400, "已经存在此好友", nil)
 		return
 	}
-	_, err = tx.Exec("insert into message_list  (uid,from_id,message_content,message_type,created_time,update_time,message_num) values "+
-		"(?,?,'你们已经成为好友',1,?,?,1),"+
-		"(?,?,'你们已经成为好友',1,?,?,1)",
-		msg.SendUid, msg.ReceiveUid, t, t, msg.ReceiveUid, msg.SendUid, t, t)
-	tx.Commit()
+	//给两条消息都加一个chatId
+	var chatId1 uint64 = idDispatch.SnowFlakeWorker.GetId()
+	var chatId2 uint64 = idDispatch.SnowFlakeWorker.GetId()
+	_, err = tx.Exec("insert into message_list  (uid,from_id,message_content,message_type,created_time,update_time,message_num,chat_id) values "+
+		"(?,?,'你们已经成为好友',1,?,?,1,?),"+
+		"(?,?,'你们已经成为好友',1,?,?,1,?)",
+		msg.SendUid, msg.ReceiveUid, t, t, chatId1,
+		msg.ReceiveUid, msg.SendUid, t, t, chatId2)
 	if err != nil {
+		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, "已经存在此好友", nil)
 		return
 	}
+	tx.Commit()
 	common.ReturnResponse(c, 200, 200, "success", nil)
 }
 

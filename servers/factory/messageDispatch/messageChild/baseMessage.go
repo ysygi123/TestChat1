@@ -5,6 +5,7 @@ import (
 	"TestChat1/db/mysql"
 	"TestChat1/db/redis"
 	"TestChat1/model/message"
+	"TestChat1/servers/idDispatch"
 	"TestChat1/servers/websocket"
 	"database/sql"
 	"encoding/json"
@@ -20,6 +21,7 @@ func (this *BaseMessage) CheckSendMessageHasError(msg *message.Message) error {
 	return errors.New("禁用此类")
 }
 
+//消息放入队列
 func (this *BaseMessage) PushMessage(msg *message.Message) error {
 	if err := this.CheckSendMessageHasError(msg); err != nil {
 		return err
@@ -82,7 +84,7 @@ func (this *BaseMessage) InsertData(msg *message.Message, msgcontent string, isS
 		message_num = 1
 	}
 	res, err := tx.Exec("INSERT INTO `message_list`"+
-		"(`uid`,`from_id`,`message_content`,`message_type`,`created_time`,`update_time`,`message_num`,`message_id`)"+
+		"(`uid`,`from_id`,`message_content`,`message_type`,`created_time`,`update_time`,`message_num`,`chat_id`)"+
 		"VALUES (?,?,?,?,?,?,?,?)", msg.ReceiveUid, msg.SendUid, msgcontent, msg.MessageType, msg.CreatedTime, msg.CreatedTime, message_num, msg.Id)
 	if err != nil {
 		fmt.Println("clientManager line 41", res, err)
@@ -163,6 +165,7 @@ func (this *BaseMessage) AddMessage(msg *message.Message) error {
 	//获取这个标题
 	msgcontent := this.GetTitle(msg.MessageContent)
 	ml := new(message.MessageList)
+	ml.ChatId = idDispatch.SnowFlakeWorker.GetId()
 	if err = this.ISendMessage(ml, msg, msgcontent, tx); err != nil {
 		fmt.Println("ClientManager 116 : ", err)
 		tx.Rollback()

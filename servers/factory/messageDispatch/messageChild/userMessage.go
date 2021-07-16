@@ -10,6 +10,9 @@ type UserMessage struct {
 }
 
 func (this *UserMessage) CheckSendMessageHasError(msg *message.Message) error {
+	if msg.ChatId == 0 {
+		return errors.New("chatid不为0")
+	}
 	if msg.GroupId != 0 {
 		return errors.New("禁止发送群消息")
 	}
