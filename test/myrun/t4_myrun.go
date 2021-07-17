@@ -8,6 +8,8 @@ import (
 )
 
 func main() {
+	mysql.NewMysqlDB()
+	redis.NewRedisDB()
 	allUid := make([]int, 0)
 	for i := 0; i < 10; i++ {
 		table := fmt.Sprintf("user_login_%d", i)
@@ -20,6 +22,9 @@ func main() {
 	}
 	for _, v := range allUid {
 		session, _ := redis.GoRedisCluster.Get("uidlogin:" + strconv.Itoa(v)).Result()
-		redis.GoRedisCluster.Del(session, "uidlogin:"+strconv.Itoa(v))
+		fmt.Println(session)
+		res, err := redis.GoRedisCluster.Del(session).Result()
+		res, err = redis.GoRedisCluster.Del("uidlogin:" + strconv.Itoa(v)).Result()
+		fmt.Println(res, err)
 	}
 }
