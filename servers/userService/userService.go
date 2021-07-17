@@ -9,7 +9,6 @@ import (
 	"errors"
 	"hash/crc32"
 	"strconv"
-	"time"
 )
 
 func CheckHadRequestAndHadFriend(sendUid, receiveUid int) error {
@@ -133,7 +132,7 @@ func Login(loginStruct *uservalidate.LoginValidate) (map[string]string, error) {
 		return nil, err
 	}
 	//设置是否登录
-	_, err = redis.GoRedisCluster.Set("uidlogin:"+userData["uid"], uint64(time.Now().Unix()), 0).Result()
+	_, err = redis.GoRedisCluster.Set("uidlogin:"+userData["uid"], session, 0).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +147,7 @@ func getUid() (int, error) {
 }
 
 //退出登录
-func LogOut(uid int, session string) (bool, error) {
+func LoginOut(uid int, session string) (bool, error) {
 	uidStr, err := redis.GoRedisCluster.HGet(session, "uid").Result()
 	if err != nil {
 		return false, err

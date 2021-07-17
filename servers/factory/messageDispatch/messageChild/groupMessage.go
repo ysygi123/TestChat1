@@ -46,7 +46,7 @@ func (this *GroupMessage) AddMessage(msg *message.Message) error {
 
 //向这些人发送websocket
 func (this *GroupMessage) WebSocketRequest(msg *message.Message, uids []int) {
-	clients, err := websocket.ClientMangerInstance.GetManyClient(uids)
+	clients, err := websocket.ClientMangerInstance.GetManyClient(uids, msg.SendUid)
 	if err != nil {
 		fmt.Println("错误 群发消息48")
 		return

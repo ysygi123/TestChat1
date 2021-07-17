@@ -46,12 +46,15 @@ func (this *ClientManger) GetClient(uid int) (c *Client, e error) {
 }
 
 //批量获取Client的链接
-func (this *ClientManger) GetManyClient(uids []int) (c []*Client, e error) {
+func (this *ClientManger) GetManyClient(uids []int, selfUid int) (c []*Client, e error) {
 	this.RWLock.RLock()
 	for k, v := range uids {
 		if (k+1)%100 == 0 {
 			this.RWLock.RUnlock()
 			this.RWLock.RLock()
+		}
+		if v == selfUid {
+			continue
 		}
 		cc, ok := this.Clients[v]
 		if !ok {

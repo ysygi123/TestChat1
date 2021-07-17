@@ -88,7 +88,7 @@ func AddToGroupCommit(c *gin.Context) {
 		return
 	}
 
-	_, err = tx.Exec("insert into message (message_content,created_time,group_id,message_type) "+
+	_, err = tx.Exec("insert into message (message_content,created_time,chat_id,message_type) "+
 		"values ('欢迎加入群',?,?,?)", t, addToGroupCommit.GroupId, 2)
 	if err != nil {
 		tx.Rollback()
