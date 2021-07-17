@@ -16,9 +16,6 @@ type AddFriendMessage struct {
 }
 
 func (this *AddFriendMessage) CheckSendMessageHasError(msg *message.Message) error {
-	if msg.GroupId != 0 {
-		return errors.New("禁止发送群消息")
-	}
 	if msg.ReceiveUid <= 0 || msg.SendUid <= 0 {
 		return errors.New("好友id错误")
 	}

@@ -88,19 +88,17 @@ func AddToGroupCommit(c *gin.Context) {
 		return
 	}
 
-	result, err := tx.Exec("insert into message (message_content,created_time,group_id,message_type) "+
+	_, err = tx.Exec("insert into message (message_content,created_time,group_id,message_type) "+
 		"values ('欢迎加入群',?,?,?)", t, addToGroupCommit.GroupId, 2)
 	if err != nil {
 		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)
 		return
 	}
-	idI64, err := result.LastInsertId()
-	id := int(idI64)
 
-	_, err = tx.Exec("insert into message_list(message_content,uid,from_id,message_type,created_time,update_time,message_num,message_id) values ("+
+	_, err = tx.Exec("insert into message_list(message_content,uid,from_id,message_type,created_time,update_time,message_num,chat_id) values ("+
 		"'欢迎加入群',?,?,2,?,?,1,?)",
-		addToGroupCommit.Uid, addToGroupCommit.GroupId, t, t, id)
+		addToGroupCommit.Uid, addToGroupCommit.GroupId, t, t, addToGroupCommit.GroupId)
 	if err != nil {
 		tx.Rollback()
 		common.ReturnResponse(c, 200, 400, err.Error(), nil)

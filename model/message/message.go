@@ -12,7 +12,6 @@ type Message struct {
 	Id             int    `db:"id" json:"id"`
 	SendUid        int    `db:"send_uid" json:"send_uid"`
 	ReceiveUid     int    `db:"receive_uid" json:"receive_uid"`
-	GroupId        int    `db:"group_id" json:"group_id"`
 	CreatedTime    uint64 `db:"created_time" json:"created_time"`
 	ChatId         uint64 `db:"chat_id" json:"chat_id"`
 	MessageContent string `db:"message_content" json:"message_content"`

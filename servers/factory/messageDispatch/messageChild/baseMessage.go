@@ -142,8 +142,8 @@ func (this *BaseMessage) GetTitle(longContent string) string {
 func (this *BaseMessage) InsertMessage(msg *message.Message, tx *sql.Tx) error {
 	res, err := tx.Exec(
 		"INSERT INTO `message`"+
-			"(`message_content`,`send_uid`,`receive_uid`,`created_time`,`message_type`,`group_id`) "+
-			"VALUES (?,?,?,?,?,?)", msg.MessageContent, msg.SendUid, msg.ReceiveUid, msg.CreatedTime, msg.MessageType, msg.GroupId)
+			"(`message_content`,`send_uid`,`receive_uid`,`created_time`,`message_type`,`chat_id`) "+
+			"VALUES (?,?,?,?,?,?)", msg.MessageContent, msg.SendUid, msg.ReceiveUid, msg.CreatedTime, msg.MessageType, msg.ChatId)
 	if err != nil {
 		fmt.Println("clientManager line 139: ", res, err)
 		return err
@@ -153,7 +153,7 @@ func (this *BaseMessage) InsertMessage(msg *message.Message, tx *sql.Tx) error {
 	return nil
 }
 
-//主要逻辑
+//主要逻辑 暂时没什么用
 func (this *BaseMessage) AddMessage(msg *message.Message) error {
 	//处理消息入库
 	tx, err := mysql.DB.Begin()

@@ -17,8 +17,8 @@ type GroupMessage struct {
 }
 
 func (this *GroupMessage) CheckSendMessageHasError(msg *message.Message) error {
-	if msg.GroupId == 0 || msg.ReceiveUid != 0 {
-		return errors.New("群消息格式错误 group_id : " + strconv.Itoa(msg.GroupId) + "  receiveuid : " + strconv.Itoa(msg.ReceiveUid))
+	if msg.ChatId == 0 || msg.ReceiveUid != 0 {
+		return errors.New("群消息格式错误 receiveuid : " + strconv.Itoa(msg.ReceiveUid))
 	}
 	return nil
 }
@@ -31,12 +31,12 @@ func (this *GroupMessage) PushMessage(msg *message.Message) error {
 }
 
 func (this *GroupMessage) AddMessage(msg *message.Message) error {
-	allUids, err := this.getThisGroupUserIds(msg.GroupId)
+	allUids, err := this.getThisGroupUserIds(msg.ChatId)
 	if err != nil {
 		return err
 	}
 	allOnLineUids := this.getIsLoginUids(allUids)
-	if err := this.SetInDataBase(allUids, msg); err != nil {
+	if err := this.setInDataBase(allUids, msg); err != nil {
 		return err
 	}
 	go this.WebSocketRequest(msg, allOnLineUids)
@@ -56,7 +56,7 @@ func (this *GroupMessage) WebSocketRequest(msg *message.Message, uids []int) {
 		"message_content": msg.MessageContent,
 		"from_id":         msg.SendUid,
 		"message_type":    msg.MessageType,
-		"group_id":        msg.GroupId,
+		"chat_id":         msg.ChatId,
 	}
 	//后面要改 通过channel发给每个*client.WebsocketConn 各自开启一个协程阻塞监听
 	for _, c := range clients {
@@ -65,7 +65,7 @@ func (this *GroupMessage) WebSocketRequest(msg *message.Message, uids []int) {
 }
 
 //数据库操作
-func (this *GroupMessage) SetInDataBase(allUids []int, msg *message.Message) error {
+func (this *GroupMessage) setInDataBase(allUids []int, msg *message.Message) error {
 	tx, err := mysql.DB.Begin()
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func (this *GroupMessage) SetInDataBase(allUids []int, msg *message.Message) err
 	title := this.GetTitle(msg.MessageContent)
 	sqlsql := "update message_list set message_content='" + title + "',message_num=message_num+1,update_time=?,is_del=1 where from_id=? and message_type=2 and uid in (" +
 		common.IntJoin(allUids, len(allUids)) + ")"
-	_, err = tx.Exec(sqlsql, uint64(time.Now().Unix()), msg.GroupId)
+	_, err = tx.Exec(sqlsql, uint64(time.Now().Unix()), msg.ChatId)
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func (this *GroupMessage) SetInDataBase(allUids []int, msg *message.Message) err
 }
 
 //获取这个群里的所有uid
-func (this *GroupMessage) getThisGroupUserIds(groupId int) ([]int, error) {
+func (this *GroupMessage) getThisGroupUserIds(groupId uint64) ([]int, error) {
 	rows, err := mysql.DB.Query("select uid from group_users where group_id=?", groupId)
 	if err != nil {
 		return nil, err
