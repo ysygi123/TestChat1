@@ -9,13 +9,13 @@ import (
 )
 
 func main() {
-	//Register(500)
-	fatherWG := new(sync.WaitGroup)
-	for j := 1; j < 3; j++ {
+	Register(1)
+	/*fatherWG := new(sync.WaitGroup)
+	for j := 1; j < 10; j++ {
 		fatherWG.Add(1)
 		go imitate(j, fatherWG)
 	}
-	fatherWG.Wait()
+	fatherWG.Wait()*/
 	//AddGroup()
 }
 
@@ -26,7 +26,7 @@ func imitate(uid int, fatherWG *sync.WaitGroup) {
 	//登录修改
 	defer fatherWG.Done()
 	urlLogin := prefixHttpUrl + "/user/Login"
-	requestBody := fmt.Sprintf(`{"username":"%d","password":"%d"}`, uid+9, uid+9)
+	requestBody := fmt.Sprintf(`{"username":"%d","password":"%d"}`, uid, uid)
 	loginreturnmap := testTool.MyselfPostRequest(urlLogin, requestBody, nil)
 	if loginreturnmap == nil {
 		fmt.Println("uid", uid, "报错了 没有登录返回map")
@@ -51,9 +51,9 @@ func imitate(uid int, fatherWG *sync.WaitGroup) {
 	//验证
 	sendStr := fmt.Sprintf(`{"cmd":"Auth","body":{"session":"%s"}}`, session)
 	n, err := ws.Write([]byte(sendStr))
-	fmt.Println("查看", n, err)
+	fmt.Println("uid : ", uid, "查看", n, err)
 	_, err = ws.Read(msg)
-	fmt.Println("查看验证完的数据是什么", string(msg), "看看发送的数据是什么", sendStr)
+	fmt.Println("uid : ", uid, "查看验证完的数据是什么", string(msg), "看看发送的数据是什么", sendStr)
 	wg := new(sync.WaitGroup)
 	//发心跳
 	go func() {
@@ -68,20 +68,22 @@ func imitate(uid int, fatherWG *sync.WaitGroup) {
 		uid, uid, time.Now().UnixNano()/1e6)
 	TestHttpTool.NewTestHttp(groupChatUrl, requestBody, map[string]string{"session": session})
 
-	for num := 0; num < 2; num++ {
-		wg.Add(1)
-		go func() {
-			res := TestHttpTool.SendRequest()
-			fmt.Println("查看发送聊天消息的结果是什么 : ", res)
-			wg.Done()
-		}()
-	}
+	go func() {
+		for num := 0; num < 2; num++ {
+			wg.Add(1)
+			go func() {
+				res := TestHttpTool.SendRequest()
+				fmt.Println("uid : ", uid, "查看发送聊天消息的结果是什么 : ", res)
+				wg.Done()
+			}()
+		}
+	}()
 	i := 1
 	for {
 		_, err := ws.Read(msg)
 		i++
 		if err != nil {
-			fmt.Println("这也是个奇奇怪怪的error", err)
+			fmt.Println("uid", uid, "这也是个奇奇怪怪的error", err)
 			break
 		}
 		fmt.Println("我是uid : ", uid, "我收到的消息是 : ", string(msg), i)

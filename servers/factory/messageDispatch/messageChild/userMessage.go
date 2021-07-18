@@ -28,8 +28,9 @@ func (this *UserMessage) PushMessage(msg *message.Message) error {
 //消息入库
 func (this *UserMessage) AddMessage(msg *message.Message) error {
 	//处理消息入库
-	tx, err := mysql.DB.Begin()
 	msg.CreatedTime = uint64(time.Now().Unix())
+	go this.WebSocketRequest(msg)
+	tx, err := mysql.DB.Begin()
 	err = this.InsertMessage(msg, tx)
 	if err != nil {
 		tx.Rollback()

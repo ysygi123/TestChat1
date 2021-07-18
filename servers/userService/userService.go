@@ -4,9 +4,11 @@ import (
 	"TestChat1/common"
 	"TestChat1/db/mysql"
 	"TestChat1/db/redis"
+	"TestChat1/servers/groupService"
 	"TestChat1/vaildate/uservalidate"
 	"database/sql"
 	"errors"
+	"fmt"
 	"hash/crc32"
 	"strconv"
 )
@@ -136,6 +138,15 @@ func Login(loginStruct *uservalidate.LoginValidate) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	uid, err := strconv.Atoi(userData["uid"])
+	if err != nil {
+		return nil, err
+	}
+	//设置群已经登录。。群多的话会比较慢
+	err = SetHasLogin(uid)
+	if err != nil {
+		return nil, err
+	}
 	userData["session"] = session
 	return userData, nil
 }
@@ -147,7 +158,13 @@ func getUid() (int, error) {
 }
 
 //退出登录
-func LoginOut(uid int, session string) (bool, error) {
+func LoginOut(uid int) (bool, error) {
+	uidlogin := fmt.Sprintf("uidlogin:%d", uid)
+
+	session, err := redis.GoRedisCluster.Get(uidlogin).Result()
+	if err != nil {
+		return false, err
+	}
 	uidStr, err := redis.GoRedisCluster.HGet(session, "uid").Result()
 	if err != nil {
 		return false, err
@@ -156,9 +173,42 @@ func LoginOut(uid int, session string) (bool, error) {
 		return false, errors.New("不是这个用户")
 	}
 
-	_, err = redis.GoRedisCluster.Del(session, uidStr).Result()
+	_, err = redis.GoRedisCluster.Del(session).Result()
+	_, err = redis.GoRedisCluster.Del(uidlogin).Result()
+
+	groupIds, err := groupService.GetMyGroupId(uid)
+
 	if err != nil {
 		return false, err
 	}
+	for _, groupId := range groupIds {
+		groupName := fmt.Sprintf("group_user:%d", groupId)
+		//万一出一个err就很蛋疼 要撤回 先这样放着
+		_, err := redis.GoRedisCluster.SRem(groupName, uid).Result()
+		if err != nil {
+			return false, err
+		}
+	}
+
 	return true, nil
+}
+
+//设置已经登录
+func SetHasLogin(uid int) error {
+	groupIds, err := groupService.GetMyGroupId(uid)
+
+	if err != nil {
+		return err
+	}
+
+	for _, groupId := range groupIds {
+		groupName := fmt.Sprintf("group_user:%d", groupId)
+		//万一出一个err就很蛋疼 要撤回 先这样放着
+		_, err := redis.GoRedisCluster.SAdd(groupName, uid).Result()
+		if err != nil {
+			return nil
+		}
+	}
+
+	return nil
 }

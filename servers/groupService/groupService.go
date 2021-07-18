@@ -20,3 +20,18 @@ func CheckHadGroup(groupId, uid int) error {
 	}
 	return nil
 }
+
+//查找这个人有多少个群
+func GetMyGroupId(uid int) ([]int, error) {
+	rows, err := mysql.DB.Query("select group_id from group_users where uid=? and is_del=1", uid)
+	if err != nil {
+		return nil, err
+	}
+	tmpId := 0
+	groupIds := make([]int, 0)
+	for rows.Next() {
+		rows.Scan(&tmpId)
+		groupIds = append(groupIds, tmpId)
+	}
+	return groupIds, nil
+}

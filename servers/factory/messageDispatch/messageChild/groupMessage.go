@@ -35,11 +35,11 @@ func (this *GroupMessage) AddMessage(msg *message.Message) error {
 	if err != nil {
 		return err
 	}
-	allOnLineUids := this.getIsLoginUids(allUids)
+	allOnLineUids := this.getIsLoginUids(msg.ChatId)
+	go this.WebSocketRequest(msg, allOnLineUids)
 	if err := this.setInDataBase(allUids, msg); err != nil {
 		return err
 	}
-	go this.WebSocketRequest(msg, allOnLineUids)
 
 	return nil
 }
@@ -103,16 +103,16 @@ func (this *GroupMessage) getThisGroupUserIds(groupId uint64) ([]int, error) {
 }
 
 //获取群里已经登录的uid
-func (this *GroupMessage) getIsLoginUids(uids []int) []int {
-	returnInt := make([]int, 0)
-	for _, uid := range uids {
-		replay, err := redis.GoRedisCluster.Get("uidlogin:" + strconv.Itoa(uid)).Result()
-		if err != nil {
-			continue
-		}
-		if replay != "" {
-			returnInt = append(returnInt, uid)
-		}
+func (this *GroupMessage) getIsLoginUids(groupId uint64) []int {
+	allOnlineUid := make([]int, 0)
+	uidStrs, err := redis.GoRedisCluster.SMembers(fmt.Sprintf("group_user:%d", groupId)).Result()
+	if err != nil {
+		fmt.Println(err)
+		return nil
 	}
-	return returnInt
+	for _, uidStr := range uidStrs {
+		uid, _ := strconv.Atoi(uidStr)
+		allOnlineUid = append(allOnlineUid, uid)
+	}
+	return allOnlineUid
 }
