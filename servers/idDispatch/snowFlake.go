@@ -57,8 +57,8 @@ func (w *Worker) GetId() uint64 {
 		w.timestamp = now
 	}
 	//以下表达式才是主菜
-	//  (now - startTime) << timeShift   产生了 41 + （10 + 12）的效应但却并不保证唯一
-	//  | (w.workerId << workerShift)  保证了与其他机器不重复
+	//  (now - startTime) << timeShift   产生了 41 + （10 + 12）的效应但却并不保证唯一 左移22位
+	//  | (w.workerId << workerShift)  保证了与其他机器不重复 机房id和机器id 左移12位
 	//  | (w.number))  保证了自己这台机不会重复
 	ID := uint64((now-startTime)<<timeShift | (w.workerId << workerShift) | (w.number))
 	return ID

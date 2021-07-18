@@ -9,8 +9,9 @@ import (
 )
 
 func main() {
+	//Register(500)
 	fatherWG := new(sync.WaitGroup)
-	for j := 1; j < 100; j++ {
+	for j := 1; j < 3; j++ {
 		fatherWG.Add(1)
 		go imitate(j, fatherWG)
 	}
@@ -18,8 +19,8 @@ func main() {
 	//AddGroup()
 }
 
-var prefixHttpUrl = "http://192.168.199.112:8088"
-var prefixWsUrl = "ws://192.168.199.112:8087"
+var prefixHttpUrl = "http://192.168.3.36:8088"
+var prefixWsUrl = "ws://192.168.3.36:8087"
 
 func imitate(uid int, fatherWG *sync.WaitGroup) {
 	//登录修改
@@ -29,6 +30,7 @@ func imitate(uid int, fatherWG *sync.WaitGroup) {
 	loginreturnmap := testTool.MyselfPostRequest(urlLogin, requestBody, nil)
 	if loginreturnmap == nil {
 		fmt.Println("uid", uid, "报错了 没有登录返回map")
+		return
 	}
 	datamapinterface := loginreturnmap["data"]
 	if datamapinterface == nil {
@@ -53,20 +55,24 @@ func imitate(uid int, fatherWG *sync.WaitGroup) {
 	_, err = ws.Read(msg)
 	fmt.Println("查看验证完的数据是什么", string(msg), "看看发送的数据是什么", sendStr)
 	wg := new(sync.WaitGroup)
+	//发心跳
 	go func() {
 		for {
 			_, _ = ws.Write([]byte(fmt.Sprintf(`{"cmd":"HeartBreath"}`)))
 			time.Sleep(time.Second * 60)
 		}
 	}()
-	for num := 0; num < 500; num++ {
+	TestHttpTool := new(testTool.TestHttp)
+	groupChatUrl := prefixHttpUrl + "/message/SendMessage"
+	requestBody = fmt.Sprintf(`{"send_uid":%d,"chat_id":1,"message_content":"你好我叫%d当前时间是%d","message_type":2}`,
+		uid, uid, time.Now().UnixNano()/1e6)
+	TestHttpTool.NewTestHttp(groupChatUrl, requestBody, map[string]string{"session": session})
+
+	for num := 0; num < 2; num++ {
 		wg.Add(1)
 		go func() {
-			groupChatUrl := prefixHttpUrl + "/message/SendMessage"
-			requestBody = fmt.Sprintf(`{"send_uid":%d,"group_id":1,"message_content":"你好我叫%d当前时间是%d","message_type":2}`,
-				uid, uid, time.Now().UnixNano()/1e6)
-			_ = testTool.MyselfPostRequest(groupChatUrl, requestBody, map[string]string{"session": session})
-			//fmt.Println("查看发送聊天消息的结果是什么 : ", res)
+			res := TestHttpTool.SendRequest()
+			fmt.Println("查看发送聊天消息的结果是什么 : ", res)
 			wg.Done()
 		}()
 	}
@@ -75,13 +81,10 @@ func imitate(uid int, fatherWG *sync.WaitGroup) {
 		_, err := ws.Read(msg)
 		i++
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("这也是个奇奇怪怪的error", err)
 			break
 		}
 		fmt.Println("我是uid : ", uid, "我收到的消息是 : ", string(msg), i)
-		if i >= 499 {
-			break
-		}
 	}
 	wg.Wait()
 }
@@ -99,4 +102,13 @@ func AddGroup() {
 		}()
 	}
 	wg.Wait()
+}
+
+func Register(i int) {
+	for k := i; k < 501; k++ {
+		jsonStr := fmt.Sprintf(`{"username":"%d","passwd":"%d"}`, k, k)
+		fmt.Println(jsonStr)
+		res := testTool.MyselfPostRequest("http://127.0.0.1:8088/user/Register", jsonStr, nil)
+		fmt.Println(res)
+	}
 }
