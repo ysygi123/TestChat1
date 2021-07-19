@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/spf13/viper"
 	"hash/crc32"
 	"strconv"
 )
@@ -153,13 +154,13 @@ func Login(loginStruct *uservalidate.LoginValidate) (map[string]string, error) {
 
 //返回uid
 func getUid() (int, error) {
-	i, err := redis.GoRedisCluster.Incr("uid_disptach").Result()
+	i, err := redis.GoRedisCluster.Incr(viper.GetString("uidDisptach")).Result()
 	return int(i), err
 }
 
 //退出登录
 func LoginOut(uid int) (bool, error) {
-	uidlogin := fmt.Sprintf("uidlogin:%d", uid)
+	uidlogin := fmt.Sprintf(viper.GetString("uidlogin")+"%d", uid)
 
 	session, err := redis.GoRedisCluster.Get(uidlogin).Result()
 	if err != nil {
@@ -182,7 +183,7 @@ func LoginOut(uid int) (bool, error) {
 		return false, err
 	}
 	for _, groupId := range groupIds {
-		groupName := fmt.Sprintf("group_user:%d", groupId)
+		groupName := fmt.Sprintf(viper.GetString("groupUser")+"%d", groupId)
 		//万一出一个err就很蛋疼 要撤回 先这样放着
 		_, err := redis.GoRedisCluster.SRem(groupName, uid).Result()
 		if err != nil {
@@ -202,7 +203,7 @@ func SetHasLogin(uid int) error {
 	}
 
 	for _, groupId := range groupIds {
-		groupName := fmt.Sprintf("group_user:%d", groupId)
+		groupName := fmt.Sprintf(viper.GetString("groupUser")+"%d", groupId)
 		//万一出一个err就很蛋疼 要撤回 先这样放着
 		_, err := redis.GoRedisCluster.SAdd(groupName, uid).Result()
 		if err != nil {

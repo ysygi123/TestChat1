@@ -1,6 +1,7 @@
 package backtask
 
 import (
+	"TestChat1/servers/userService"
 	"TestChat1/servers/websocket"
 	"time"
 )
@@ -13,12 +14,18 @@ func MonitoringMain() {
 		for _, v := range websocket.ClientMangerInstance.Clients {
 			select {
 			case <-ticker.C:
-				websocket.ClientMangerInstance.RWLock.RLock()
-				if uint64(time.Now().Unix())-v.HeartBreath > 120 {
-					websocket.ClientMangerInstance.CloseChan <- v.Uid
-				}
-				websocket.ClientMangerInstance.RWLock.RUnlock()
+				delClient(v)
+				userService.LoginOut(v.Uid)
 			}
 		}
 	}
+}
+
+func delClient(client *websocket.Client) {
+	defer websocket.ClientMangerInstance.RWLock.RUnlock()
+	websocket.ClientMangerInstance.RWLock.RLock()
+	if uint64(time.Now().Unix())-client.HeartBreath > 120 {
+		websocket.ClientMangerInstance.CloseChan <- client.Uid
+	}
+
 }

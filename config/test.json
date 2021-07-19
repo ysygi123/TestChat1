@@ -1,0 +1,21 @@
+{
+  "mysql": {
+    "username": "root",
+    "password": "root",
+    "host": "127.0.0.1:3306",
+    "database": "testchat1",
+    "MaxOpen": 500,
+    "MaxIdle": 500
+  },
+  "redisCluster": {
+    "cluster": [
+      "127.0.0.1:6380",
+      "127.0.0.1:6381",
+      "127.0.0.1:6382"
+    ]
+  },
+  "uidDisptch": "uid_disptach",
+  "uidlogin": "uidlogin:",
+  "groupUser": "group_user:",
+  "messageQueue": "message_queue"
+}

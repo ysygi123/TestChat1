@@ -2,6 +2,7 @@ package redis
 
 import (
 	"github.com/go-redis/redis"
+	"github.com/spf13/viper"
 	"time"
 )
 
@@ -9,9 +10,9 @@ var GoRedisCluster *redis.ClusterClient
 
 var IP string = "127.0.0.1"
 
-func init() {
+func NewRedisCluster() {
 	GoRedisCluster = redis.NewClusterClient(&redis.ClusterOptions{
-		Addrs:        []string{IP + ":6382", IP + ":6381", IP + ":6380"},
+		Addrs:        viper.GetStringSlice("redisCluster.cluster"),
 		Password:     "",
 		MaxRedirects: 8, // 当遇到网络错误或者MOVED/ASK重定向命令时，最多重试几次，默认8
 

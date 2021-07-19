@@ -9,16 +9,17 @@ import (
 )
 
 func main() {
-	Register(1)
-	/*fatherWG := new(sync.WaitGroup)
-	for j := 1; j < 10; j++ {
+	//Register(1)
+	fatherWG := new(sync.WaitGroup)
+	for j := 1; j < 500; j++ {
 		fatherWG.Add(1)
 		go imitate(j, fatherWG)
 	}
-	fatherWG.Wait()*/
+	fatherWG.Wait()
 	//AddGroup()
 }
 
+var msgIdTime = uint64(time.Now().Unix())
 var prefixHttpUrl = "http://192.168.3.36:8088"
 var prefixWsUrl = "ws://192.168.3.36:8087"
 
@@ -65,11 +66,11 @@ func imitate(uid int, fatherWG *sync.WaitGroup) {
 	TestHttpTool := new(testTool.TestHttp)
 	groupChatUrl := prefixHttpUrl + "/message/SendMessage"
 	requestBody = fmt.Sprintf(`{"send_uid":%d,"chat_id":1,"message_content":"你好我叫%d当前时间是%d","message_type":2}`,
-		uid, uid, time.Now().UnixNano()/1e6)
+		uid, uid, msgIdTime)
 	TestHttpTool.NewTestHttp(groupChatUrl, requestBody, map[string]string{"session": session})
 
 	go func() {
-		for num := 0; num < 2; num++ {
+		for num := 0; num < 3; num++ {
 			wg.Add(1)
 			go func() {
 				res := TestHttpTool.SendRequest()

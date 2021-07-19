@@ -7,6 +7,7 @@ import (
 	"TestChat1/servers/websocket"
 	"encoding/json"
 	"fmt"
+	"github.com/spf13/viper"
 	"sync"
 )
 
@@ -17,7 +18,7 @@ func TaskConsumeMessage() {
 		wg.Add(1)
 		go func(wg *sync.WaitGroup) {
 			for {
-				reply, err := redis.GoRedisCluster.BRPop(0, "message_queue").Result()
+				reply, err := redis.GoRedisCluster.BRPop(0, viper.GetString("messageQueue")).Result()
 				if err != nil {
 					fmt.Println("clientManager line 84: ", err)
 					continue

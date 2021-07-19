@@ -9,12 +9,15 @@ import (
 	"TestChat1/servers/idDispatch"
 	"TestChat1/servers/web"
 	"TestChat1/servers/websocket"
+	"fmt"
+	"github.com/spf13/viper"
 	"net/http"
 )
 
 func main() {
+	initConfig()
 	mysql.NewMysqlDB()
-	redis.NewRedisDB()
+	redis.NewRedisCluster()
 	websocket.ClientMangerInstanceInit()
 	websocket.WebSocketRouteMangerInit()
 	websocket.WebSocketRouteManger.AllRegisterRoute()
@@ -30,4 +33,15 @@ func main() {
 	}()
 	webroute.SetWebRoute()
 	_ = web.GinEniger.Run(":8088")
+}
+
+func initConfig() {
+	viper.SetConfigName("test")
+	viper.AddConfigPath("config")
+	viper.SetConfigType("json")
+	err := viper.ReadInConfig()
+	fmt.Println(viper.GetString("mysql.username"))
+	if err != nil {
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	}
 }
