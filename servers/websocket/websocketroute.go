@@ -36,6 +36,7 @@ func (this *WebSocketRoute) RegisterRoute(cmd string, funcName WebsocketFunc) {
 func (this *WebSocketRoute) GetHandler(cmd string) (h WebsocketFunc, err error) {
 	this.RWLock.RLock()
 	h, ok := this.Route[cmd]
+	this.RWLock.RUnlock()
 	if ok == false {
 		err = errors.New("查无此功能")
 		return nil, err
