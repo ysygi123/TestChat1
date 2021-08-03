@@ -73,3 +73,21 @@ func MyselfPostRequest(url, requestBody string, header map[string]string) map[st
 	json.Unmarshal(body, &returnMap)
 	return returnMap
 }
+
+type SendChan struct {
+	ch chan struct{}
+}
+
+func GetNewChan(numOfChan int) *SendChan {
+	s := &SendChan{}
+	s.ch = make(chan struct{}, numOfChan)
+	return s
+}
+
+func (this *SendChan) Lock() {
+	this.ch <- struct{}{}
+}
+
+func (this *SendChan) Unlock() {
+	<-this.ch
+}
