@@ -2,6 +2,7 @@ package centerServer
 
 //以后改成中心服务器
 import (
+	"bytes"
 	"fmt"
 	"net"
 	"strings"
@@ -35,13 +36,25 @@ func connHandle(conn net.Conn) {
 		fmt.Println("这个conn有问题")
 		return
 	}
-	buf := make([]byte, 4096)
+	long := 2
+	buf := make([]byte, long)
+	myBuffer := new(bytes.Buffer)
 	for {
 		cnt, err := conn.Read(buf)
 		if cnt == 0 || err != nil {
 			_ = conn.Close()
 			break
 		}
-		fmt.Println("服务端接收到的命令 : ", strings.TrimSpace(string(buf[0:cnt])))
+		myBuffer.Write(buf[0:cnt])
+		for cnt == long {
+			cnt, err = conn.Read(buf)
+			if cnt == 0 || err != nil {
+				_ = conn.Close()
+				break
+			}
+			myBuffer.Write(buf[0:cnt])
+		}
+
+		fmt.Println("服务端接收到的命令 : ", strings.TrimSpace(myBuffer.String()))
 	}
 }
