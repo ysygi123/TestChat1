@@ -3,9 +3,9 @@ package centerServer
 //以后改成中心服务器
 import (
 	"TestChat1/servers/serverChat"
+	"encoding/json"
 	"fmt"
 	"net"
-	"strings"
 )
 
 func CenterServerStart() {
@@ -43,6 +43,12 @@ func connHandle(conn net.Conn) {
 			fmt.Println("读出错", err)
 			return
 		}
-		fmt.Println("服务端接收到的命令 : ", strings.TrimSpace(iobuffer.String()))
+		s := serverChat.ClientRequestMsg{}
+		err = json.Unmarshal(iobuffer.Bytes(), &s)
+		if err != nil {
+			fmt.Println("命令有误", err)
+		}
+		handle := serverChat.ServerRouteManager.GetHandler(s.Cmd)
+		(*handle)(nil)
 	}
 }
