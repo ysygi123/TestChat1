@@ -19,21 +19,23 @@ var ServerRouteManager *ServerRoute
 type ServerRouteFunction func(smsg *ClientRequestMsg, conn net.Conn)
 
 type ServerRoute struct {
-	Route map[string]*ServerRouteFunction
+	ServerRoute map[string]ServerRouteFunction
 }
 
 func NewServerRouteManager() {
-	ServerRouteManager = &ServerRoute{}
+	ServerRouteManager = &ServerRoute{
+		ServerRoute: map[string]ServerRouteFunction{},
+	}
 }
 
 //注册路由
-func (this *ServerRoute) Register(commandName string, handler *ServerRouteFunction) {
-	this.Route[commandName] = handler
+func (this *ServerRoute) RegisterServerRoute(commandName string, handler ServerRouteFunction) {
+	this.ServerRoute[commandName] = handler
 }
 
 //获取路由函数
-func (this *ServerRoute) GetHandler(commandName string) *ServerRouteFunction {
-	h, ok := this.Route[commandName]
+func (this *ServerRoute) GetServerHandler(commandName string) ServerRouteFunction {
+	h, ok := this.ServerRoute[commandName]
 	if !ok {
 		return nil
 	}

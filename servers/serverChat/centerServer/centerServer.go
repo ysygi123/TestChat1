@@ -18,7 +18,7 @@ func CenterServerStart() {
 	}
 
 	fmt.Println("我试一试开起来看看")
-
+	RegisterCenterServerRoute()
 	for {
 		conn, err := server.Accept()
 
@@ -38,23 +38,28 @@ func connHandle(conn net.Conn) {
 	}
 
 	for {
-		iobuffer, err := serverChat.ConnReadMany(conn)
+		returnByte, err := serverChat.ConnReadMany(conn)
 		if err != nil {
-			fmt.Println("读出错", err)
+			fmt.Println("服务端读出错", err)
 			return
 		}
 		s := serverChat.ClientRequestMsg{}
-		err = json.Unmarshal(iobuffer.Bytes(), &s)
+
+		err = json.Unmarshal(returnByte, &s)
+
+		fmt.Println(s, err)
+
 		if err != nil {
-			EchoError("查无此路由", conn)
+			EchoError("查无此路由"+err.Error(), conn)
 			continue
 		}
-		handle := serverChat.ServerRouteManager.GetHandler(s.Cmd)
+		handle := serverChat.ServerRouteManager.GetServerHandler(s.Cmd)
+		fmt.Println(s.Cmd, serverChat.ServerRouteManager.ServerRoute)
 		if handle == nil {
-			EchoError("查无此路由", conn)
+			EchoError("查无此路由"+err.Error(), conn)
 			continue
 		}
-		(*handle)(&s, conn)
+		(handle)(&s, conn)
 	}
 }
 
