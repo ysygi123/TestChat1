@@ -46,9 +46,33 @@ func connHandle(conn net.Conn) {
 		s := serverChat.ClientRequestMsg{}
 		err = json.Unmarshal(iobuffer.Bytes(), &s)
 		if err != nil {
-			fmt.Println("命令有误", err)
+			EchoError("查无此路由", conn)
+			continue
 		}
 		handle := serverChat.ServerRouteManager.GetHandler(s.Cmd)
-		(*handle)(nil)
+		if handle == nil {
+			EchoError("查无此路由", conn)
+			continue
+		}
+		(*handle)(&s, conn)
 	}
+}
+
+func EchoError(errMsg string, conn net.Conn) error {
+	msg := serverChat.ServerResponseMsg{
+		Cmd: "ERR",
+		Params: map[string]interface{}{
+			"errMsg": errMsg,
+		},
+	}
+
+	msgByte, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+	_, err = conn.Write(msgByte)
+	if err != nil {
+		return err
+	}
+	return nil
 }

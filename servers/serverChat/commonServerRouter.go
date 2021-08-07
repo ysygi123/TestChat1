@@ -1,19 +1,22 @@
 package serverChat
 
+import "net"
+
 //客户和主服务器之间相互交流
 
 type ClientRequestMsg struct {
-	Cmd string
+	Cmd    string                 `json:"cmd"`
+	Params map[string]interface{} `json:"params"`
 }
 
-type ServerResponseMst struct {
-	Cmd    string
-	Params map[string]interface{}
+type ServerResponseMsg struct {
+	Cmd    string                 `json:"cmd"`
+	Params map[string]interface{} `json:"params"`
 }
 
 var ServerRouteManager *ServerRoute
 
-type ServerRouteFunction func(smsg *map[string]interface{}) *ServerResponseMst
+type ServerRouteFunction func(smsg *ClientRequestMsg, conn net.Conn)
 
 type ServerRoute struct {
 	Route map[string]*ServerRouteFunction
